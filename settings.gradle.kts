@@ -22,6 +22,8 @@ include("tracing-api")
 include(":http-api")
 include(":http-binding")
 
+include(":in-memory-api")
+
 include(":json-codec")
 include(":xml-codec")
 include(":rpcv2-cbor-codec")
@@ -29,6 +31,7 @@ include(":rpcv2-cbor-codec")
 include(":client-core")
 include(":client-http")
 include(":client-http-binding")
+include(":client-in-memory")
 
 include(":dynamic-client")
 
