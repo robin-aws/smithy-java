@@ -21,17 +21,10 @@ import software.amazon.smithy.java.logging.InternalLogger;
 public class JavaInMemoryClientTransport implements ClientTransport<InMemoryRequest, InMemoryResponse> {
 
     private static final InternalLogger LOGGER = InternalLogger.getLogger(JavaInMemoryClientTransport.class);
-    private final HttpClient client;
-
-    public JavaInMemoryClientTransport() {
-        this(HttpClient.newHttpClient());
-    }
 
     /**
-     * @param client Java client to use.
      */
-    public JavaInMemoryClientTransport(HttpClient client) {
-        this.client = client;
+    public JavaInMemoryClientTransport() {
     }
 
     @Override

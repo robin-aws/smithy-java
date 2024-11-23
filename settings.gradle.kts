@@ -32,6 +32,7 @@ include(":client-core")
 include(":client-http")
 include(":client-http-binding")
 include(":client-in-memory")
+include(":client-in-memory-cbor")
 
 include(":dynamic-client")
 

@@ -10,5 +10,7 @@ import software.amazon.smithy.java.io.datastream.DataStream;
 /**
  */
 public interface InMemoryRequest {
+   // TODO: Some things on DataStream are irrelevant like content type,
+   // but most still applies.
    DataStream body();
 }
