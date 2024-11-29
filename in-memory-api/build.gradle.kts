@@ -8,5 +8,5 @@ extra["displayName"] = "Smithy :: Java :: In-Memory"
 extra["moduleName"] = "software.amazon.smithy.java.in-memory-api"
 
 dependencies {
-    api(project(":io"))
+    api(project(":server-core"))
 }

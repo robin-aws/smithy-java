@@ -9,6 +9,7 @@ import software.amazon.smithy.java.cbor.Rpcv2CborCodec;
 import software.amazon.smithy.java.client.core.ClientProtocol;
 import software.amazon.smithy.java.client.core.ClientProtocolFactory;
 import software.amazon.smithy.java.client.core.ProtocolSettings;
+import software.amazon.smithy.java.client.core.endpoint.Endpoint;
 import software.amazon.smithy.java.context.Context;
 import software.amazon.smithy.java.core.schema.ApiOperation;
 import software.amazon.smithy.java.core.schema.SerializableStruct;
@@ -18,7 +19,11 @@ import software.amazon.smithy.java.inmemory.api.InMemoryRequest;
 import software.amazon.smithy.java.inmemory.api.InMemoryResponse;
 import software.amazon.smithy.java.io.ByteBufferOutputStream;
 import software.amazon.smithy.java.io.datastream.DataStream;
+import software.amazon.smithy.java.server.core.InMemoryServerRequest;
+import software.amazon.smithy.java.server.core.Request;
+import software.amazon.smithy.java.server.core.RequestImpl;
 import software.amazon.smithy.model.shapes.ShapeId;
+import software.amazon.smithy.protocol.traits.InMemoryCborTrait;
 import software.amazon.smithy.protocol.traits.Rpcv2CborTrait;
 
 import java.net.URI;
@@ -26,16 +31,25 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
-public final class InMemoryCborProtocol extends InMemoryClientProtocol {
+public final class InMemoryCborProtocol extends InMemoryClientProtocol<InMemoryRequest, InMemoryResponse> {
     private static final Codec CBOR_CODEC = Rpcv2CborCodec.builder().build();
     private static final List<String> SMITHY_PROTOCOL = List.of("in-memory-v1-cbor");
 
     private final ShapeId service;
 
     public InMemoryCborProtocol(ShapeId service) {
-        // TODO: Define trait
-        super(Rpcv2CborTrait.ID.toString());
+        super(InMemoryCborTrait.ID.toString());
         this.service = service;
+    }
+
+    @Override
+    public Class<InMemoryRequest> requestClass() {
+        return InMemoryRequest.class;
+    }
+
+    @Override
+    public Class<InMemoryResponse> responseClass() {
+        return InMemoryResponse.class;
     }
 
     @Override
@@ -50,8 +64,17 @@ public final class InMemoryCborProtocol extends InMemoryClientProtocol {
             input.serialize(serializer);
         }
         var body = DataStream.ofByteBuffer(sink.toByteBuffer(), "application/cbor");
-        // TODO: make builder
+        // TODO: need InMemoryRequestImpl;
+        var request = new InMemoryServerRequest();
         return () -> body;
+    }
+
+    @Override
+    public InMemoryRequest setServiceEndpoint(InMemoryRequest request, Endpoint endpoint) {
+        // No-op for now - it seems to make sense for "this process"
+        // to be the only valid endpoint, as a singleton.
+        // It might be safer to explicitly define that dummy endpoint and check it though.
+        return request;
     }
 
     @Override

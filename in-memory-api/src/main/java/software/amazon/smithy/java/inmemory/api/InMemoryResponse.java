@@ -6,9 +6,10 @@
 package software.amazon.smithy.java.inmemory.api;
 
 import software.amazon.smithy.java.io.datastream.DataStream;
+import software.amazon.smithy.java.server.core.Request;
 
 /**
  */
 public interface InMemoryResponse {
-   DataStream body();
+   public Request request();
 }
