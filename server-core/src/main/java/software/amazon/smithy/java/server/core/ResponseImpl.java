@@ -9,11 +9,10 @@ import software.amazon.smithy.java.context.Context;
 import software.amazon.smithy.java.core.schema.SerializableStruct;
 import software.amazon.smithy.java.io.datastream.DataStream;
 
-public abstract sealed class ResponseImpl implements Response permits HttpResponse, InMemoryServerResponse {
+public abstract sealed class ResponseImpl implements Response permits HttpResponse, InMemoryDataStreamResponse {
 
     private final Context context = Context.create();
     private SerializableStruct value;
-    private DataStream dataStream;
 
     @Override
     public final Context context() {
@@ -28,15 +27,5 @@ public abstract sealed class ResponseImpl implements Response permits HttpRespon
     @Override
     public <T extends SerializableStruct> T getValue() {
         return (T) value;
-    }
-
-    @Override
-    public void setSerializedValue(DataStream serializedValue) {
-        this.dataStream = serializedValue;
-    }
-
-    @Override
-    public DataStream getSerializedValue() {
-        return dataStream;
     }
 }

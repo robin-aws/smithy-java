@@ -7,6 +7,7 @@ package software.amazon.smithy.java.server.core;
 
 import java.net.URI;
 import software.amazon.smithy.java.http.api.HttpHeaders;
+import software.amazon.smithy.java.io.datastream.DataStream;
 
 // TODO see if we can reuse SmithyHttpRequest in here.
 public final class HttpRequest extends RequestImpl {
@@ -14,6 +15,7 @@ public final class HttpRequest extends RequestImpl {
     private final HttpHeaders headers;
     private final URI uri;
     private final String method;
+    private DataStream dataStream;
 
     public HttpRequest(HttpHeaders headers, URI uri, String method) {
         this.headers = headers;
@@ -31,5 +33,13 @@ public final class HttpRequest extends RequestImpl {
 
     public String method() {
         return method;
+    }
+
+    public DataStream getDataStream() {
+        return dataStream;
+    }
+
+    public void setDataStream(DataStream dataStream) {
+        this.dataStream = dataStream;
     }
 }

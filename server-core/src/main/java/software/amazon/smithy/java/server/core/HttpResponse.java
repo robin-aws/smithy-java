@@ -6,10 +6,12 @@
 package software.amazon.smithy.java.server.core;
 
 import software.amazon.smithy.java.http.api.ModifiableHttpHeaders;
+import software.amazon.smithy.java.io.datastream.DataStream;
 
 public final class HttpResponse extends ResponseImpl {
 
     private int statusCode;
+    private DataStream dataStream;
 
     public HttpResponse(ModifiableHttpHeaders headers) {
         this.headers = headers;
@@ -27,5 +29,13 @@ public final class HttpResponse extends ResponseImpl {
 
     public void setStatusCode(int statusCode) {
         this.statusCode = statusCode;
+    }
+
+    public void setSerializedValue(DataStream serializedValue) {
+        this.dataStream = serializedValue;
+    }
+
+    public DataStream getSerializedValue() {
+        return dataStream;
     }
 }

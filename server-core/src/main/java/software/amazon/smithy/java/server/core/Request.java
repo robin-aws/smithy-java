@@ -13,10 +13,6 @@ public sealed interface Request permits RequestImpl {
 
     Context context();
 
-    DataStream getDataStream();
-
-    void setDataStream(DataStream dataStream);
-
     <T extends SerializableStruct> T getDeserializedValue();
 
     void setDeserializedValue(SerializableStruct serializableStruct);

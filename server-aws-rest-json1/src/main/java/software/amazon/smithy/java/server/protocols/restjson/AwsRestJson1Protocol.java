@@ -127,7 +127,7 @@ final class AwsRestJson1Protocol extends ServerProtocol {
                     .headers(headers)
                     .uri(httpJob.request().uri())
                     .method(httpJob.request().method())
-                    .body(job.request().getDataStream())
+                    .body(httpJob.request().getDataStream())
                     .build()
             )
             .payloadCodec(codec)

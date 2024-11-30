@@ -6,6 +6,7 @@
 package software.amazon.smithy.java.server.core;
 
 import software.amazon.smithy.java.core.schema.SerializableStruct;
+import software.amazon.smithy.java.io.datastream.DataStream;
 import software.amazon.smithy.java.server.Operation;
 
 public final class HttpJob extends DefaultJob {
@@ -38,4 +39,5 @@ public final class HttpJob extends DefaultJob {
     public boolean isHttpJob() {
         return true;
     }
+
 }

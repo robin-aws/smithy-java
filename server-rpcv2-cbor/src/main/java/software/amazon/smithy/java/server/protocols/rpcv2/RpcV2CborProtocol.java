@@ -73,7 +73,7 @@ final class RpcV2CborProtocol extends ServerProtocol {
 
     @Override
     public CompletableFuture<Void> deserializeInput(Job job) {
-        var dataStream = job.request().getDataStream();
+        var dataStream = job.asHttpJob().request().getDataStream();
         if (dataStream.contentLength() > 0 && !"application/cbor".equals(dataStream.contentType())) {
             throw new MalformedHttpException("Invalid content type");
         }

@@ -5,13 +5,13 @@ import software.amazon.smithy.java.server.Operation;
 
 public final class InMemoryJob extends DefaultJob {
 
-    private final InMemoryServerRequest request;
-    private final InMemoryServerResponse response;
+    private final InMemoryDataStreamRequest request;
+    private final InMemoryDataStreamResponse response;
 
     public InMemoryJob(Operation<? extends SerializableStruct, ? extends SerializableStruct> operation,
                           ServerProtocol protocol,
-                          InMemoryServerRequest request,
-                          InMemoryServerResponse response) {
+                          InMemoryDataStreamRequest request,
+                          InMemoryDataStreamResponse response) {
         super(operation, protocol);
         this.request = request;
         this.response = response;

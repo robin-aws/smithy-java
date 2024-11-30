@@ -6,14 +6,11 @@
 package software.amazon.smithy.java.client.inmemory;
 
 import software.amazon.smithy.java.client.core.ClientProtocol;
-import software.amazon.smithy.java.client.core.endpoint.Endpoint;
-import software.amazon.smithy.java.inmemory.api.InMemoryRequest;
-import software.amazon.smithy.java.inmemory.api.InMemoryResponse;
 
 /**
  * An abstract class for implementing in-memory protocols.
  *
- * TODO: This might be useless since there isn't actually aren't common request/response types.
+ * TODO: This might be useless since there actually aren't common request/response types.
  */
 public abstract class InMemoryClientProtocol<RequestT, ResponseT> implements ClientProtocol<RequestT, ResponseT> {
 
