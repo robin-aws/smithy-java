@@ -66,6 +66,7 @@ include(":aws:client-rpcv2-cbor-protocol")
 include(":aws:aws-client-http")
 
 include(":server-rpcv2-cbor")
+include(":server-in-memory-cbor")
 
 // AWS integrations
 include(":aws:integrations:lambda")
