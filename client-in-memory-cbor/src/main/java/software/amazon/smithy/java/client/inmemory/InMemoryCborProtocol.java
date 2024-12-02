@@ -17,6 +17,7 @@ import software.amazon.smithy.java.core.serde.Codec;
 import software.amazon.smithy.java.core.serde.TypeRegistry;
 import software.amazon.smithy.java.io.ByteBufferOutputStream;
 import software.amazon.smithy.java.io.datastream.DataStream;
+import software.amazon.smithy.java.io.uri.URIBuilder;
 import software.amazon.smithy.java.server.core.InMemoryDataStreamRequest;
 import software.amazon.smithy.java.server.core.InMemoryDataStreamResponse;
 import software.amazon.smithy.model.shapes.ShapeId;
@@ -56,19 +57,43 @@ public final class InMemoryCborProtocol extends InMemoryClientProtocol<InMemoryD
             Context context,
             URI endpoint
     ) {
+        var target = "/service/" + service.getName() + "/operation/" + operation.schema().id().getName();
+        var uri = endpoint.resolve(target);
+
         var sink = new ByteBufferOutputStream();
         try (var serializer = CBOR_CODEC.createSerializer(sink)) {
             input.serialize(serializer);
         }
         var body = DataStream.ofByteBuffer(sink.toByteBuffer(), "application/cbor");
-        return new InMemoryDataStreamRequest(body);
+
+        return new InMemoryDataStreamRequest(uri, InMemoryCborTrait.ID.toString(), body);
     }
 
     @Override
     public InMemoryDataStreamRequest setServiceEndpoint(InMemoryDataStreamRequest request, Endpoint endpoint) {
-        // No-op for now - it seems to make sense for "this process"
-        // to be the only valid endpoint, as a singleton.
-        // It might be safer to explicitly define that dummy endpoint and check it though.
+        var uri = endpoint.uri();
+        URIBuilder builder = URIBuilder.of(request.getUri());
+
+        if (uri.getScheme() != null) {
+            builder.scheme(uri.getScheme());
+        }
+
+        if (uri.getHost() != null) {
+            builder.host(uri.getHost());
+        }
+
+        if (uri.getPort() > -1) {
+            builder.port(uri.getPort());
+        }
+
+        // If a path is set on the service endpoint, concatenate it with the path of the request.
+        if (uri.getRawPath() != null && !uri.getRawPath().isEmpty()) {
+            builder.path(uri.getRawPath());
+            builder.concatPath(request.getUri().getPath());
+        }
+
+        request.setUri(builder.build());
+
         return request;
     }
 
@@ -91,14 +116,14 @@ public final class InMemoryCborProtocol extends InMemoryClientProtocol<InMemoryD
                 .toCompletableFuture();
     }
 
-    public static final class Factory implements ClientProtocolFactory<Rpcv2CborTrait> {
+    public static final class Factory implements ClientProtocolFactory<InMemoryCborTrait> {
         @Override
         public ShapeId id() {
-            return Rpcv2CborTrait.ID;
+            return InMemoryCborTrait.ID;
         }
 
         @Override
-        public ClientProtocol<?, ?> createProtocol(ProtocolSettings settings, Rpcv2CborTrait trait) {
+        public ClientProtocol<?, ?> createProtocol(ProtocolSettings settings, InMemoryCborTrait trait) {
             return new InMemoryCborProtocol(
                     Objects.requireNonNull(
                             settings.service(),

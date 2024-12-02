@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package software.amazon.smithy.java.server.protocols.rpcv2;
+package software.amazon.smithy.java.server.protocols.inmemory;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -13,6 +13,7 @@ import software.amazon.smithy.java.core.schema.TraitKey;
 import software.amazon.smithy.java.io.ByteBufferOutputStream;
 import software.amazon.smithy.java.io.datastream.DataStream;
 import software.amazon.smithy.java.server.Service;
+import software.amazon.smithy.java.server.core.InMemoryDataStreamRequest;
 import software.amazon.smithy.java.server.core.Job;
 import software.amazon.smithy.java.server.core.ServerProtocol;
 import software.amazon.smithy.java.server.core.ServiceProtocolResolutionRequest;
@@ -33,7 +34,8 @@ final class InMemoryCborProtocol extends ServerProtocol {
 
     @Override
     public ShapeId getProtocolId() {
-        return Rpcv2CborTrait.ID;
+        // TODO: Move trait to a better package so we can reference it directly
+        return ShapeId.from("smithy.protocols#inmemoryv1Cbor");
     }
 
     @Override
@@ -41,8 +43,8 @@ final class InMemoryCborProtocol extends ServerProtocol {
         ServiceProtocolResolutionRequest request,
         List<Service> candidates
     ) {
-        if (!isRpcV2Request(request)) {
-            // This doesn't appear to be an RpcV2 request, let other protocols try.
+        if (!request.requestContext().get(InMemoryDataStreamRequest.SMITHY_PROTOCOL_KEY).equals(getProtocolId())) {
+            // This doesn't appear to be an in-memory CBOR request, let other protocols try.
             return null;
         }
         String path = request.uri().getPath();
@@ -73,7 +75,7 @@ final class InMemoryCborProtocol extends ServerProtocol {
 
     @Override
     public CompletableFuture<Void> deserializeInput(Job job) {
-        var dataStream = job.asHttpJob().request().getDataStream();
+        var dataStream = job.asInMemoryJob().request().getDataStream();
         if (dataStream.contentLength() > 0 && !"application/cbor".equals(dataStream.contentType())) {
             throw new MalformedHttpException("Invalid content type");
         }
@@ -94,25 +96,7 @@ final class InMemoryCborProtocol extends ServerProtocol {
             output.serialize(serializer);
         }
         job.response().setSerializedValue(DataStream.ofByteBuffer(sink.toByteBuffer(), "application/cbor"));
-        var httpJob = job.asHttpJob();
-        final int statusCode;
-        if (isError) {
-            var httpError = output.schema().getTrait(TraitKey.HTTP_ERROR_TRAIT);
-            if (httpError != null) {
-                statusCode = httpError.getCode();
-            } else {
-                var errorTrait = output.schema().getTrait(TraitKey.ERROR_TRAIT);
-                if (errorTrait != null && errorTrait.isClientError()) {
-                    statusCode = 400;
-                } else {
-                    statusCode = 500;
-                }
-            }
-        } else {
-            statusCode = 200;
-        }
-        httpJob.response().headers().putHeader("smithy-protocol", "rpc-v2-cbor");
-        httpJob.response().setStatusCode(statusCode);
+        // TODO: errors
         return CompletableFuture.completedFuture(null);
     }
 
@@ -122,6 +106,10 @@ final class InMemoryCborProtocol extends ServerProtocol {
             return schema.id().toString().equals(serviceAndOperation.service());
         } else return service.schema().id().getName().equals(serviceAndOperation.service());
     }
+
+    // TODO: Move this logic somewhere more central.
+    // Perhaps find a common term for how the service and operation
+    // are encoded in the URI since it's not RPC V2 specific.
 
     private static ServiceAndOperation parseRpcV2StylePath(String path) {
         // serviceNameStart must be non-negative for any of these offsets
@@ -210,13 +198,6 @@ final class InMemoryCborProtocol extends ServerProtocol {
                 (uri.charAt(pos - 3) == 'i') &&
                 (uri.charAt(pos - 2) == 'c') &&
                 (uri.charAt(pos - 1) == 'e'));
-    }
-
-    private static boolean isRpcV2Request(ServiceProtocolResolutionRequest request) {
-        if (!"POST".equals(request.method())) {
-            return false;
-        }
-        return "rpc-v2-cbor".equals(request.headers().firstValue("smithy-protocol"));
     }
 
     private record ServiceAndOperation(String service, String operation, boolean isFullyQualifiedService) {

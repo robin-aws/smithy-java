@@ -48,8 +48,7 @@ public class JavaInMemoryClientTransport implements ClientTransport<InMemoryData
     @Override
     public CompletableFuture<InMemoryDataStreamResponse> send(Context context, InMemoryDataStreamRequest request) {
         var resolutionResult = resolver.resolve(
-                // TODO: generalize the resolution API, or encode information as a uri, or leverage the context
-                new ServiceProtocolResolutionRequest(null, null, context, null)
+                new ServiceProtocolResolutionRequest(request.getUri(), null, context, null)
         );
         var response = new InMemoryDataStreamResponse();
         var job = new InMemoryJob(resolutionResult.operation(), resolutionResult.protocol(), request, response);

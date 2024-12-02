@@ -44,4 +44,18 @@ public sealed interface Job permits DefaultJob {
         return (HttpJob) this;
     }
 
+    default boolean isInMemoryJob() {
+        return false;
+    }
+
+    /**
+     * Returns a HttpJob if the current Job is actually a InMemoryJob. Users are expected to invoke isInMemoryJob prior to this to confirm.
+     *
+     * @return InMemoryJob
+     * @throws ClassCastException if this is not a InMemoryJob.
+     */
+    default InMemoryJob asInMemoryJob() {
+        return (InMemoryJob) this;
+    }
+
 }

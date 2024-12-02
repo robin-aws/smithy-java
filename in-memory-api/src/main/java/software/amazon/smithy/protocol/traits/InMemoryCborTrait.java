@@ -67,7 +67,7 @@ public class InMemoryCborTrait extends AbstractTrait implements ToSmithyBuilder<
         }
 
         @Override
-        public Trait createTrait(ShapeId target, Node value) {
+        public InMemoryCborTrait createTrait(ShapeId target, Node value) {
             InMemoryCborTrait result = fromNode(value);
             result.setNodeCache(value);
             return result;

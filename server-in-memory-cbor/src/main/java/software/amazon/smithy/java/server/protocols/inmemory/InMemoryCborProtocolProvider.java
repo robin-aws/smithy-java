@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package software.amazon.smithy.java.server.protocols.rpcv2;
+package software.amazon.smithy.java.server.protocols.inmemory;
 
 import java.util.List;
 import software.amazon.smithy.java.server.Service;
@@ -12,7 +12,7 @@ import software.amazon.smithy.java.server.core.ServerProtocolProvider;
 import software.amazon.smithy.model.shapes.ShapeId;
 import software.amazon.smithy.protocol.traits.Rpcv2CborTrait;
 
-public final class RpcV2CborProtocolProvider implements ServerProtocolProvider {
+public final class InMemoryCborProtocolProvider implements ServerProtocolProvider {
     @Override
     public ServerProtocol provideProtocolHandler(List<Service> candidateServices) {
         return new InMemoryCborProtocol(candidateServices);

@@ -5,6 +5,7 @@ import software.amazon.smithy.java.server.Operation;
 
 public final class InMemoryJob extends DefaultJob {
 
+    // TODO: Needs generalizing, not all in memory protocols use data streams
     private final InMemoryDataStreamRequest request;
     private final InMemoryDataStreamResponse response;
 
@@ -18,12 +19,12 @@ public final class InMemoryJob extends DefaultJob {
     }
 
     @Override
-    public Request request() {
+    public InMemoryDataStreamRequest request() {
         return request;
     }
 
     @Override
-    public Response response() {
+    public InMemoryDataStreamResponse response() {
         return response;
     }
 }
