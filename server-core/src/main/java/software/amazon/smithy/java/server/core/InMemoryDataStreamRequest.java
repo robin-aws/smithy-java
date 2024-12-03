@@ -13,12 +13,10 @@ public final class InMemoryDataStreamRequest extends RequestImpl {
             .key("In-Memory Smithy Protocol");
 
     private URI uri;
-    private final String protocol;
     private DataStream dataStream;
 
-    public InMemoryDataStreamRequest(URI uri, String protocol, DataStream dataStream) {
+    public InMemoryDataStreamRequest(URI uri, DataStream dataStream) {
         this.uri = uri;
-        this.protocol = protocol;
         this.dataStream = dataStream;
     }
 
@@ -28,10 +26,6 @@ public final class InMemoryDataStreamRequest extends RequestImpl {
 
     public void setUri(URI uri) {
         this.uri = uri;
-    }
-
-    public String protocol() {
-        return protocol;
     }
 
     public DataStream getDataStream() {

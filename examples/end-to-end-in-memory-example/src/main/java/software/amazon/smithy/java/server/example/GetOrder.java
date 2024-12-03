@@ -6,10 +6,10 @@
 package software.amazon.smithy.java.server.example;
 
 import java.util.UUID;
-import software.amazon.smithy.java.example.model.GetOrderInput;
-import software.amazon.smithy.java.example.model.GetOrderOutput;
-import software.amazon.smithy.java.example.model.OrderNotFound;
-import software.amazon.smithy.java.example.service.GetOrderOperation;
+import software.amazon.smithy.java.inmemory.example.model.GetOrderInput;
+import software.amazon.smithy.java.inmemory.example.model.GetOrderOutput;
+import software.amazon.smithy.java.inmemory.example.model.OrderNotFound;
+import software.amazon.smithy.java.inmemory.example.service.GetOrderOperation;
 import software.amazon.smithy.java.server.RequestContext;
 
 final class GetOrder implements GetOrderOperation {

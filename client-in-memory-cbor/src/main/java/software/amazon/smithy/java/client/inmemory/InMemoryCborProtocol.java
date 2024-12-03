@@ -66,7 +66,9 @@ public final class InMemoryCborProtocol extends InMemoryClientProtocol<InMemoryD
         }
         var body = DataStream.ofByteBuffer(sink.toByteBuffer(), "application/cbor");
 
-        return new InMemoryDataStreamRequest(uri, InMemoryCborTrait.ID.toString(), body);
+        context.put(InMemoryDataStreamRequest.SMITHY_PROTOCOL_KEY, InMemoryCborTrait.ID);
+
+        return new InMemoryDataStreamRequest(uri, body);
     }
 
     @Override

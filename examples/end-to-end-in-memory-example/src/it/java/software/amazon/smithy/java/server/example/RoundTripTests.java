@@ -9,8 +9,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.net.Socket;
-import java.net.URI;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -19,13 +17,13 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import software.amazon.smithy.java.client.core.endpoint.EndpointResolver;
-import software.amazon.smithy.java.example.client.CoffeeShopClient;
-import software.amazon.smithy.java.example.model.CoffeeType;
-import software.amazon.smithy.java.example.model.CreateOrderInput;
-import software.amazon.smithy.java.example.model.GetMenuInput;
-import software.amazon.smithy.java.example.model.GetOrderInput;
-import software.amazon.smithy.java.example.model.OrderNotFound;
-import software.amazon.smithy.java.example.model.OrderStatus;
+import software.amazon.smithy.java.inmemory.example.client.CoffeeShopClient;
+import software.amazon.smithy.java.inmemory.example.model.CoffeeType;
+import software.amazon.smithy.java.inmemory.example.model.CreateOrderInput;
+import software.amazon.smithy.java.inmemory.example.model.GetMenuInput;
+import software.amazon.smithy.java.inmemory.example.model.GetOrderInput;
+import software.amazon.smithy.java.inmemory.example.model.OrderNotFound;
+import software.amazon.smithy.java.inmemory.example.model.OrderStatus;
 import software.amazon.smithy.java.server.core.InMemoryServer;
 
 public class RoundTripTests {

@@ -7,9 +7,8 @@ package software.amazon.smithy.java.server.example;
 
 import java.net.URI;
 import java.util.concurrent.ExecutionException;
-import software.amazon.smithy.java.example.service.CoffeeShop;
+import software.amazon.smithy.java.inmemory.example.service.CoffeeShop;
 import software.amazon.smithy.java.server.Server;
-import software.amazon.smithy.java.server.core.InMemoryServer;
 import software.amazon.smithy.java.server.core.InMemoryServerBuilder;
 
 public class BasicServerExample implements Runnable {
