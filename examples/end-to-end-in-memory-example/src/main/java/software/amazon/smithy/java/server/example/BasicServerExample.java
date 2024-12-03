@@ -9,13 +9,15 @@ import java.net.URI;
 import java.util.concurrent.ExecutionException;
 import software.amazon.smithy.java.example.service.CoffeeShop;
 import software.amazon.smithy.java.server.Server;
+import software.amazon.smithy.java.server.core.InMemoryServer;
+import software.amazon.smithy.java.server.core.InMemoryServerBuilder;
 
 public class BasicServerExample implements Runnable {
-    static final URI endpoint = URI.create("http://localhost:8888");
+    static final URI endpoint = URI.create("inmemory:///");
 
     @Override
     public void run() {
-        Server server = Server.builder()
+        Server server = new InMemoryServerBuilder()
             .endpoints(endpoint)
             .addService(
                 CoffeeShop.builder()

@@ -12,9 +12,9 @@ public final class InMemoryDataStreamRequest extends RequestImpl {
     public static final Context.Key<ShapeId> SMITHY_PROTOCOL_KEY = Context
             .key("In-Memory Smithy Protocol");
 
+    private URI uri;
     private final String protocol;
     private DataStream dataStream;
-    private URI uri;
 
     public InMemoryDataStreamRequest(URI uri, String protocol, DataStream dataStream) {
         this.uri = uri;

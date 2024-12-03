@@ -13,6 +13,7 @@ import software.amazon.smithy.java.logging.InternalLogger;
 import software.amazon.smithy.java.server.core.InMemoryJob;
 import software.amazon.smithy.java.server.core.InMemoryDataStreamRequest;
 import software.amazon.smithy.java.server.core.InMemoryDataStreamResponse;
+import software.amazon.smithy.java.server.core.InMemoryServer;
 import software.amazon.smithy.java.server.core.Orchestrator;
 import software.amazon.smithy.java.server.core.ProtocolResolver;
 import software.amazon.smithy.java.server.core.ServiceProtocolResolutionRequest;
@@ -47,13 +48,9 @@ public class JavaInMemoryClientTransport implements ClientTransport<InMemoryData
 
     @Override
     public CompletableFuture<InMemoryDataStreamResponse> send(Context context, InMemoryDataStreamRequest request) {
-        var resolutionResult = resolver.resolve(
-                new ServiceProtocolResolutionRequest(request.getUri(), null, context, null)
-        );
-        var response = new InMemoryDataStreamResponse();
-        var job = new InMemoryJob(resolutionResult.operation(), resolutionResult.protocol(), request, response);
-        return orchestrator.enqueue(job)
-                           .thenCompose(r -> CompletableFuture.completedFuture(response));
+        // TODO: Works, but may not be the ideal minimal FFI signature,
+        // especially the typed context map which could have arbitrary types in it.
+        return InMemoryServer.SERVER.handle(context, request);
     }
 
     public static final class Factory implements ClientTransportFactory<InMemoryDataStreamRequest, InMemoryDataStreamResponse> {

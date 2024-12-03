@@ -26,6 +26,7 @@ import software.amazon.smithy.java.example.model.GetMenuInput;
 import software.amazon.smithy.java.example.model.GetOrderInput;
 import software.amazon.smithy.java.example.model.OrderNotFound;
 import software.amazon.smithy.java.example.model.OrderStatus;
+import software.amazon.smithy.java.server.core.InMemoryServer;
 
 public class RoundTripTests {
     private static final ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -35,16 +36,8 @@ public class RoundTripTests {
         var server = new BasicServerExample();
         executor.execute(server);
         // Wait for server to start
-        while (!serverListening(BasicServerExample.endpoint)) {
+        while (InMemoryServer.SERVER == null) {
             TimeUnit.SECONDS.sleep(1);
-        }
-    }
-
-    public static boolean serverListening(URI uri) {
-        try (Socket ignored = new Socket(uri.getHost(), uri.getPort())) {
-            return true;
-        } catch (Exception e) {
-            return false;
         }
     }
 
