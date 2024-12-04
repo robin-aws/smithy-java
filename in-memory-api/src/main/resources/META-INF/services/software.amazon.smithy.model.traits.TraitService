@@ -1,1 +1,2 @@
 software.amazon.smithy.protocol.traits.InMemoryCborTrait$Provider
+software.amazon.smithy.protocol.traits.InMemoryJavaTrait$Provider

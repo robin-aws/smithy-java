@@ -13,7 +13,6 @@ import software.amazon.smithy.java.io.uri.URIBuilder;
 import software.amazon.smithy.java.server.core.InMemoryRequest;
 import software.amazon.smithy.java.server.core.InMemoryResponse;
 import software.amazon.smithy.model.shapes.ShapeId;
-import software.amazon.smithy.protocol.traits.InMemoryCborTrait;
 import software.amazon.smithy.protocol.traits.InMemoryJavaTrait;
 
 import java.net.URI;
@@ -27,7 +26,7 @@ public class InMemoryJavaProtocol extends InMemoryClientProtocol<InMemoryRequest
     private final ShapeId service;
 
     public InMemoryJavaProtocol(ShapeId service) {
-        super(InMemoryCborTrait.ID.toString());
+        super(InMemoryJavaTrait.ID.toString());
         this.service = service;
     }
 
@@ -102,19 +101,22 @@ public class InMemoryJavaProtocol extends InMemoryClientProtocol<InMemoryRequest
         var serializer = new ConsumerSerializer(operation.typeRegistry(), (schema, value) -> {
             result.complete(value);
         });
-        // TODO: Need Deserializer equivalent of ConsumerSerializer
+        var serializedValue = (SerializableStruct)response.getSerializedValue();
+        // TODO: This may or may not be correct in all cases.
+        // Probably better to avoid confusion by defining a ShapeDeserializer as well
+        serializedValue.serialize(serializer);
 
         return result;
     }
 
-    public static final class Factory implements ClientProtocolFactory<InMemoryCborTrait> {
+    public static final class Factory implements ClientProtocolFactory<InMemoryJavaTrait> {
         @Override
         public ShapeId id() {
-            return InMemoryCborTrait.ID;
+            return InMemoryJavaTrait.ID;
         }
 
         @Override
-        public ClientProtocol<?, ?> createProtocol(ProtocolSettings settings, InMemoryCborTrait trait) {
+        public ClientProtocol<?, ?> createProtocol(ProtocolSettings settings, InMemoryJavaTrait trait) {
             return new InMemoryJavaProtocol(
                     Objects.requireNonNull(
                             settings.service(),

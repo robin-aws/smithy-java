@@ -1,1 +1,2 @@
 software.amazon.smithy.java.server.protocols.inmemory.InMemoryCborProtocolProvider
+software.amazon.smithy.java.server.protocols.inmemory.InMemoryJavaProtocolProvider

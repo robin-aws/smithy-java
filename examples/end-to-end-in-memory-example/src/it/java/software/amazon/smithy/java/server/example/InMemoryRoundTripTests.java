@@ -26,7 +26,7 @@ import software.amazon.smithy.java.inmemory.example.model.OrderNotFound;
 import software.amazon.smithy.java.inmemory.example.model.OrderStatus;
 import software.amazon.smithy.java.server.core.InMemoryServer;
 
-public class RoundTripTests {
+public class InMemoryRoundTripTests {
     private static final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     @BeforeAll

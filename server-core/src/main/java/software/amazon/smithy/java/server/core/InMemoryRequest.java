@@ -12,7 +12,7 @@ public final class InMemoryRequest extends RequestImpl {
             .key("In-Memory Smithy Protocol");
 
     private URI uri;
-    // TODO: Dynamic type saftey checks ala client protocols
+    // TODO: Introduce type parameters, and/or dynamic type saftey checks ala client protocols
     private Object serializedValue;
 
     public InMemoryRequest(URI uri, Object serializedValue) {

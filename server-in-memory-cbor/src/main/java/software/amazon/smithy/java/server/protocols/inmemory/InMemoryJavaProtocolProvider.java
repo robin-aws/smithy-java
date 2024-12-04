@@ -5,23 +5,25 @@
 
 package software.amazon.smithy.java.server.protocols.inmemory;
 
-import java.util.List;
 import software.amazon.smithy.java.server.Service;
 import software.amazon.smithy.java.server.core.ServerProtocol;
 import software.amazon.smithy.java.server.core.ServerProtocolProvider;
 import software.amazon.smithy.model.shapes.ShapeId;
 import software.amazon.smithy.protocol.traits.InMemoryCborTrait;
+import software.amazon.smithy.protocol.traits.InMemoryJavaTrait;
 import software.amazon.smithy.protocol.traits.Rpcv2CborTrait;
 
-public final class InMemoryCborProtocolProvider implements ServerProtocolProvider {
+import java.util.List;
+
+public final class InMemoryJavaProtocolProvider implements ServerProtocolProvider {
     @Override
     public ServerProtocol provideProtocolHandler(List<Service> candidateServices) {
-        return new InMemoryCborProtocol(candidateServices);
+        return new InMemoryJavaProtocol(candidateServices);
     }
 
     @Override
     public ShapeId getProtocolId() {
-        return InMemoryCborTrait.ID;
+        return InMemoryJavaTrait.ID;
     }
 
     @Override

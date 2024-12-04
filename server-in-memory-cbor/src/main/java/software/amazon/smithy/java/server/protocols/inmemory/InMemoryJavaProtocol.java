@@ -5,8 +5,6 @@
 
 package software.amazon.smithy.java.server.protocols.inmemory;
 
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import software.amazon.smithy.java.cbor.Rpcv2CborCodec;
 import software.amazon.smithy.java.core.schema.SerializableStruct;
 import software.amazon.smithy.java.io.ByteBufferOutputStream;
@@ -21,19 +19,20 @@ import software.amazon.smithy.java.server.exceptions.MalformedHttpException;
 import software.amazon.smithy.java.server.exceptions.UnknownOperationException;
 import software.amazon.smithy.model.shapes.ShapeId;
 import software.amazon.smithy.protocol.traits.InMemoryCborTrait;
+import software.amazon.smithy.protocol.traits.InMemoryJavaTrait;
 
-final class InMemoryCborProtocol extends ServerProtocol {
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
-    private final Rpcv2CborCodec codec;
+final class InMemoryJavaProtocol extends ServerProtocol {
 
-    InMemoryCborProtocol(List<Service> services) {
+    InMemoryJavaProtocol(List<Service> services) {
         super(services);
-        this.codec = Rpcv2CborCodec.builder().build();
     }
 
     @Override
     public ShapeId getProtocolId() {
-        return InMemoryCborTrait.ID;
+        return InMemoryJavaTrait.ID;
     }
 
     @Override
@@ -42,7 +41,7 @@ final class InMemoryCborProtocol extends ServerProtocol {
         List<Service> candidates
     ) {
         if (!request.requestContext().get(InMemoryRequest.SMITHY_PROTOCOL_KEY).equals(getProtocolId())) {
-            // This doesn't appear to be an in-memory CBOR request, let other protocols try.
+            // This doesn't appear to be an in-memory Java request, let other protocols try.
             return null;
         }
         String path = request.uri().getPath();
@@ -73,27 +72,17 @@ final class InMemoryCborProtocol extends ServerProtocol {
 
     @Override
     public CompletableFuture<Void> deserializeInput(Job job) {
-        var dataStream = (DataStream)job.asInMemoryJob().request().getSerializedValue();
-        if (dataStream.contentLength() > 0 && !"application/cbor".equals(dataStream.contentType())) {
-            throw new MalformedHttpException("Invalid content type");
-        }
-        return dataStream.asByteBuffer().thenApply(b -> {
-            var input = codec.deserializeShape(
-                dataStream.waitForByteBuffer(),
-                job.operation().getApiOperation().inputBuilder()
-            );
-            job.request().setDeserializedValue(input);
-            return null;
-        });
+        // No-op, since this protocol uses server types as the serialized form directly.
+        var inMemoryJob = job.asInMemoryJob();
+        inMemoryJob.request().setDeserializedValue((SerializableStruct)inMemoryJob.request().getSerializedValue());
+        return CompletableFuture.completedFuture(null);
     }
 
     @Override
     public CompletableFuture<Void> serializeOutput(Job job, SerializableStruct output, boolean isError) {
-        var sink = new ByteBufferOutputStream();
-        try (var serializer = codec.createSerializer(sink)) {
-            output.serialize(serializer);
-        }
-        job.asInMemoryJob().response().setSerializedValue(DataStream.ofByteBuffer(sink.toByteBuffer(), "application/cbor"));
+        // No-op, since this protocol uses server types as the serialized form directly.
+        var inMemoryJob = job.asInMemoryJob();
+        inMemoryJob.response().setSerializedValue(inMemoryJob.response().getValue());
         return CompletableFuture.completedFuture(null);
     }
 

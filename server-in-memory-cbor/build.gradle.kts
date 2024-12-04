@@ -15,4 +15,5 @@ dependencies {
     implementation(project(":context"))
     implementation(project(":core"))
     implementation(project(":rpcv2-cbor-codec"))
+    implementation(project(":in-memory-api"))
 }

@@ -1,7 +1,7 @@
 package software.amazon.smithy.java.server.core;
 
 public final class InMemoryResponse extends ResponseImpl {
-    // TODO: Dynamic type saftey checks ala client protocols
+    // TODO: Introduce type parameters, and/or dynamic type saftey checks ala client protocols
     private Object serializedValue;
 
     public InMemoryResponse() {
