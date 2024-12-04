@@ -1,11 +1,5 @@
-/*
- * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
- * SPDX-License-Identifier: Apache-2.0
- */
-
 package software.amazon.smithy.java.client.inmemory;
 
-import software.amazon.smithy.java.cbor.Rpcv2CborCodec;
 import software.amazon.smithy.java.client.core.ClientProtocol;
 import software.amazon.smithy.java.client.core.ClientProtocolFactory;
 import software.amazon.smithy.java.client.core.ProtocolSettings;
@@ -13,28 +7,26 @@ import software.amazon.smithy.java.client.core.endpoint.Endpoint;
 import software.amazon.smithy.java.context.Context;
 import software.amazon.smithy.java.core.schema.ApiOperation;
 import software.amazon.smithy.java.core.schema.SerializableStruct;
-import software.amazon.smithy.java.core.serde.Codec;
+import software.amazon.smithy.java.core.serde.ConsumerSerializer;
 import software.amazon.smithy.java.core.serde.TypeRegistry;
-import software.amazon.smithy.java.io.ByteBufferOutputStream;
-import software.amazon.smithy.java.io.datastream.DataStream;
 import software.amazon.smithy.java.io.uri.URIBuilder;
 import software.amazon.smithy.java.server.core.InMemoryRequest;
 import software.amazon.smithy.java.server.core.InMemoryResponse;
 import software.amazon.smithy.model.shapes.ShapeId;
 import software.amazon.smithy.protocol.traits.InMemoryCborTrait;
+import software.amazon.smithy.protocol.traits.InMemoryJavaTrait;
 
 import java.net.URI;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
-public final class InMemoryCborProtocol extends InMemoryClientProtocol<InMemoryRequest, InMemoryResponse> {
-    private static final Codec CBOR_CODEC = Rpcv2CborCodec.builder().build();
-    private static final List<String> SMITHY_PROTOCOL = List.of("in-memory-v1-cbor");
+public class InMemoryJavaProtocol extends InMemoryClientProtocol<InMemoryRequest, InMemoryResponse> {
+    private static final List<String> SMITHY_PROTOCOL = List.of("in-memory-v1-java");
 
     private final ShapeId service;
 
-    public InMemoryCborProtocol(ShapeId service) {
+    public InMemoryJavaProtocol(ShapeId service) {
         super(InMemoryCborTrait.ID.toString());
         this.service = service;
     }
@@ -59,15 +51,15 @@ public final class InMemoryCborProtocol extends InMemoryClientProtocol<InMemoryR
         var target = "/service/" + service.getName() + "/operation/" + operation.schema().id().getName();
         var uri = endpoint.resolve(target);
 
-        var sink = new ByteBufferOutputStream();
-        try (var serializer = CBOR_CODEC.createSerializer(sink)) {
-            input.serialize(serializer);
-        }
-        var body = DataStream.ofByteBuffer(sink.toByteBuffer(), "application/cbor");
+        context.put(InMemoryRequest.SMITHY_PROTOCOL_KEY, InMemoryJavaTrait.ID);
+        var result = new InMemoryRequest(uri, null);
+        // TODO: wrong type registry, needs to be the in-memory service type registry
+        var serializer = new ConsumerSerializer(operation.typeRegistry(), (schema, value) -> {
+            result.setSerializedValue(value);
+        });
+        input.serialize(serializer);
 
-        context.put(InMemoryRequest.SMITHY_PROTOCOL_KEY, InMemoryCborTrait.ID);
-
-        return new InMemoryRequest(uri, body);
+        return result;
     }
 
     @Override
@@ -106,15 +98,13 @@ public final class InMemoryCborProtocol extends InMemoryClientProtocol<InMemoryR
             InMemoryRequest request,
             InMemoryResponse response
     ) {
-        var builder = operation.outputBuilder();
-        var content = (DataStream)response.getSerializedValue();
-        if (content.contentLength() == 0) {
-            return CompletableFuture.completedFuture(builder.build());
-        }
+        var result = new CompletableFuture();
+        var serializer = new ConsumerSerializer(operation.typeRegistry(), (schema, value) -> {
+            result.complete(value);
+        });
+        // TODO: Need Deserializer equivalent of ConsumerSerializer
 
-        return content.asByteBuffer()
-                .thenApply(bytes -> CBOR_CODEC.deserializeShape(bytes, builder))
-                .toCompletableFuture();
+        return result;
     }
 
     public static final class Factory implements ClientProtocolFactory<InMemoryCborTrait> {
@@ -125,7 +115,7 @@ public final class InMemoryCborProtocol extends InMemoryClientProtocol<InMemoryR
 
         @Override
         public ClientProtocol<?, ?> createProtocol(ProtocolSettings settings, InMemoryCborTrait trait) {
-            return new InMemoryCborProtocol(
+            return new InMemoryJavaProtocol(
                     Objects.requireNonNull(
                             settings.service(),
                             "service is a required protocol setting"

@@ -6,3 +6,8 @@ namespace smithy.protocols
 @protocolDefinition(traits: [])
 structure inmemoryv1Cbor {
 }
+
+@trait(selector: "service")
+@protocolDefinition(traits: [])
+structure inmemoryv1Java {
+}

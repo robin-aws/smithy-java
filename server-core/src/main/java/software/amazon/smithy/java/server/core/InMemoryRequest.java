@@ -1,23 +1,23 @@
 package software.amazon.smithy.java.server.core;
 
 import software.amazon.smithy.java.context.Context;
-import software.amazon.smithy.java.io.datastream.DataStream;
 import software.amazon.smithy.model.shapes.ShapeId;
 
 import java.net.URI;
 
-public final class InMemoryDataStreamRequest extends RequestImpl {
+public final class InMemoryRequest extends RequestImpl {
 
     // TODO: Move this somewhere more central
     public static final Context.Key<ShapeId> SMITHY_PROTOCOL_KEY = Context
             .key("In-Memory Smithy Protocol");
 
     private URI uri;
-    private DataStream dataStream;
+    // TODO: Dynamic type saftey checks ala client protocols
+    private Object serializedValue;
 
-    public InMemoryDataStreamRequest(URI uri, DataStream dataStream) {
+    public InMemoryRequest(URI uri, Object serializedValue) {
         this.uri = uri;
-        this.dataStream = dataStream;
+        this.serializedValue = serializedValue;
     }
 
     public URI getUri() {
@@ -28,11 +28,11 @@ public final class InMemoryDataStreamRequest extends RequestImpl {
         this.uri = uri;
     }
 
-    public DataStream getDataStream() {
-        return dataStream;
+    public Object getSerializedValue() {
+        return serializedValue;
     }
 
-    public void setDataStream(DataStream dataStream) {
-        this.dataStream = dataStream;
+    public void setSerializedValue(Object serializedValue) {
+        this.serializedValue = serializedValue;
     }
 }

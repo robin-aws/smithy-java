@@ -8,7 +8,7 @@ package software.amazon.smithy.java.server.core;
 import software.amazon.smithy.java.context.Context;
 import software.amazon.smithy.java.core.schema.SerializableStruct;
 
-public abstract sealed class RequestImpl implements Request permits HttpRequest, InMemoryDataStreamRequest {
+public abstract sealed class RequestImpl implements Request permits HttpRequest, InMemoryRequest {
 
     private final Context context = Context.create();
     private SerializableStruct deserializedValue;

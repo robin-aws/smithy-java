@@ -16,8 +16,4 @@ public sealed interface Response permits ResponseImpl {
     <T extends SerializableStruct> T getValue();
 
     void setValue(SerializableStruct value);
-
-    void setSerializedValue(DataStream serializedValue);
-
-    DataStream getSerializedValue();
 }

@@ -3,8 +3,6 @@ package software.amazon.smithy.java.server.core;
 import software.amazon.smithy.java.context.Context;
 import software.amazon.smithy.java.server.Server;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class InMemoryServer implements Server {
@@ -30,11 +28,11 @@ public class InMemoryServer implements Server {
     }
 
     // TODO: generalize beyond just data stream payloads
-    public CompletableFuture<InMemoryDataStreamResponse> handle(Context context, InMemoryDataStreamRequest request) {
+    public CompletableFuture<InMemoryResponse> handle(Context context, InMemoryRequest request) {
         var resolutionResult = resolver.resolve(
                 new ServiceProtocolResolutionRequest(request.getUri(), null, context, null)
         );
-        var response = new InMemoryDataStreamResponse();
+        var response = new InMemoryResponse();
         var job = new InMemoryJob(resolutionResult.operation(), resolutionResult.protocol(), request, response);
         return orchestrator.enqueue(job)
                 .thenCompose(r -> CompletableFuture.completedFuture(response));

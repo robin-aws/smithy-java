@@ -8,7 +8,7 @@ package software.amazon.smithy.java.core.schema;
 import software.amazon.smithy.java.core.serde.ShapeDeserializer;
 
 /**
- * Builds deserializable shapes.
+ * Builds serializable shapes.
  *
  * @param <T> Shape to build.
  */

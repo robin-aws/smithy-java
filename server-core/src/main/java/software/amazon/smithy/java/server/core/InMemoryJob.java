@@ -6,25 +6,25 @@ import software.amazon.smithy.java.server.Operation;
 public final class InMemoryJob extends DefaultJob {
 
     // TODO: Needs generalizing, not all in memory protocols use data streams
-    private final InMemoryDataStreamRequest request;
-    private final InMemoryDataStreamResponse response;
+    private final InMemoryRequest request;
+    private final InMemoryResponse response;
 
     public InMemoryJob(Operation<? extends SerializableStruct, ? extends SerializableStruct> operation,
                           ServerProtocol protocol,
-                          InMemoryDataStreamRequest request,
-                          InMemoryDataStreamResponse response) {
+                          InMemoryRequest request,
+                          InMemoryResponse response) {
         super(operation, protocol);
         this.request = request;
         this.response = response;
     }
 
     @Override
-    public InMemoryDataStreamRequest request() {
+    public InMemoryRequest request() {
         return request;
     }
 
     @Override
-    public InMemoryDataStreamResponse response() {
+    public InMemoryResponse response() {
         return response;
     }
 }

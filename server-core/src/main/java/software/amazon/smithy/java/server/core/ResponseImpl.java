@@ -7,9 +7,8 @@ package software.amazon.smithy.java.server.core;
 
 import software.amazon.smithy.java.context.Context;
 import software.amazon.smithy.java.core.schema.SerializableStruct;
-import software.amazon.smithy.java.io.datastream.DataStream;
 
-public abstract sealed class ResponseImpl implements Response permits HttpResponse, InMemoryDataStreamResponse {
+public abstract sealed class ResponseImpl implements Response permits HttpResponse, InMemoryResponse {
 
     private final Context context = Context.create();
     private SerializableStruct value;
