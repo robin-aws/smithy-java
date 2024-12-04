@@ -52,13 +52,17 @@ public class InMemoryJavaProtocol extends InMemoryClientProtocol<InMemoryRequest
 
         context.put(InMemoryRequest.SMITHY_PROTOCOL_KEY, InMemoryJavaTrait.ID);
         var result = new InMemoryRequest(uri, null);
-        // TODO: wrong type registry, needs to be the in-memory service type registry
-        var serializer = new ConsumerSerializer(operation.typeRegistry(), (schema, value) -> {
-            result.setSerializedValue(value);
-        });
-        input.serialize(serializer);
+//        // TODO: wrong type registry, needs to be the in-memory service type registry
+//        var serializer = new ConsumerSerializer(operation.typeRegistry(), (schema, value) -> {
+//            result.setSerializedValue(value);
+//        });
+//        input.serialize(serializer);
+
+        result.setSerializedValue(input);
 
         return result;
+
+
     }
 
     @Override
@@ -97,16 +101,17 @@ public class InMemoryJavaProtocol extends InMemoryClientProtocol<InMemoryRequest
             InMemoryRequest request,
             InMemoryResponse response
     ) {
-        var result = new CompletableFuture();
-        var serializer = new ConsumerSerializer(operation.typeRegistry(), (schema, value) -> {
-            result.complete(value);
-        });
-        var serializedValue = (SerializableStruct)response.getSerializedValue();
-        // TODO: This may or may not be correct in all cases.
-        // Probably better to avoid confusion by defining a ShapeDeserializer as well
-        serializedValue.serialize(serializer);
+//        var result = new CompletableFuture();
+//        var serializer = new ConsumerSerializer(operation.typeRegistry(), (schema, value) -> {
+//            result.complete(value);
+//        });
+//        var serializedValue = (SerializableStruct)response.getSerializedValue();
+//        // TODO: This may or may not be correct in all cases.
+//        // Probably better to avoid confusion by defining a ShapeDeserializer as well
+//        serializedValue.serialize(serializer);
 
-        return result;
+        //noinspection unchecked
+        return CompletableFuture.completedFuture((O)response.getSerializedValue());
     }
 
     public static final class Factory implements ClientProtocolFactory<InMemoryJavaTrait> {

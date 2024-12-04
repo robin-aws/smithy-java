@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.function.BiConsumer;
 
+// TODO: This seemed super useful until I realized TypeRegistry's were mostly only
+// used for errors.
 public class ConsumerSerializer implements ShapeSerializer {
 
     private final TypeRegistry typeRegistry;
