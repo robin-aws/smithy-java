@@ -27,7 +27,6 @@ public class InMemoryServer implements Server {
         );
     }
 
-    // TODO: generalize beyond just data stream payloads
     public CompletableFuture<InMemoryResponse> handle(Context context, InMemoryRequest request) {
         var resolutionResult = resolver.resolve(
                 new ServiceProtocolResolutionRequest(request.getUri(), null, context, null)
@@ -48,7 +47,10 @@ public class InMemoryServer implements Server {
 
     @Override
     public CompletableFuture<Void> shutdown() {
-        // TODO: flush jobs
+        if (SERVER == null) {
+            throw new IllegalStateException("Server is not started");
+        }
+        SERVER.shutdown();
         SERVER = null;
         return CompletableFuture.completedFuture(null);
     }

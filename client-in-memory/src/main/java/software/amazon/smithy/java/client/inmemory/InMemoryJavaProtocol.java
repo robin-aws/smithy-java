@@ -7,7 +7,7 @@ import software.amazon.smithy.java.client.core.endpoint.Endpoint;
 import software.amazon.smithy.java.context.Context;
 import software.amazon.smithy.java.core.schema.ApiOperation;
 import software.amazon.smithy.java.core.schema.SerializableStruct;
-import software.amazon.smithy.java.core.serde.ConsumerSerializer;
+import software.amazon.smithy.java.core.serde.SerializableShapeDeserializer;
 import software.amazon.smithy.java.core.serde.TypeRegistry;
 import software.amazon.smithy.java.io.uri.URIBuilder;
 import software.amazon.smithy.java.server.core.InMemoryRequest;
@@ -51,18 +51,12 @@ public class InMemoryJavaProtocol extends InMemoryClientProtocol<InMemoryRequest
         var uri = endpoint.resolve(target);
 
         context.put(InMemoryRequest.SMITHY_PROTOCOL_KEY, InMemoryJavaTrait.ID);
-        var result = new InMemoryRequest(uri, null);
-//        // TODO: wrong type registry, needs to be the in-memory service type registry
-//        var serializer = new ConsumerSerializer(operation.typeRegistry(), (schema, value) -> {
-//            result.setSerializedValue(value);
-//        });
-//        input.serialize(serializer);
 
-        result.setSerializedValue(input);
+        // TODO: This needs to be the server input shape instead
+        var inputBuilder = operation.inputBuilder();
+        inputBuilder.deserialize(new SerializableShapeDeserializer(input));
 
-        return result;
-
-
+        return new InMemoryRequest(uri, inputBuilder.build());
     }
 
     @Override
@@ -101,17 +95,10 @@ public class InMemoryJavaProtocol extends InMemoryClientProtocol<InMemoryRequest
             InMemoryRequest request,
             InMemoryResponse response
     ) {
-//        var result = new CompletableFuture();
-//        var serializer = new ConsumerSerializer(operation.typeRegistry(), (schema, value) -> {
-//            result.complete(value);
-//        });
-//        var serializedValue = (SerializableStruct)response.getSerializedValue();
-//        // TODO: This may or may not be correct in all cases.
-//        // Probably better to avoid confusion by defining a ShapeDeserializer as well
-//        serializedValue.serialize(serializer);
+        var outputBuilder = operation.outputBuilder();
+        outputBuilder.deserialize(new SerializableShapeDeserializer(response.getValue()));
 
-        //noinspection unchecked
-        return CompletableFuture.completedFuture((O)response.getSerializedValue());
+        return CompletableFuture.completedFuture(outputBuilder.build());
     }
 
     public static final class Factory implements ClientProtocolFactory<InMemoryJavaTrait> {
