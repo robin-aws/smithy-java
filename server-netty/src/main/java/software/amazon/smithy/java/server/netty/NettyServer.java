@@ -20,10 +20,15 @@ import io.netty.channel.kqueue.KQueueServerSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.net.URI;
+import java.net.UnixDomainSocketAddress;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
+
+import jdk.net.UnixDomainPrincipal;
 import software.amazon.smithy.java.logging.InternalLogger;
 import software.amazon.smithy.java.server.Server;
 import software.amazon.smithy.java.server.core.ErrorHandlingOrchestrator;
@@ -80,14 +85,18 @@ final class NettyServer implements Server {
     @Override
     public void start() {
         for (URI endpoint : endpoints) {
-            try {
-                bootstrap.group(bossGroup, workerGroup)
-                    .localAddress(new InetSocketAddress(endpoint.getHost(), endpoint.getPort()))
-                    .bind()
-                    .sync();
-            } catch (InterruptedException e) {
-                throw new RuntimeException("Unable to start server on " + endpoint, e);
+            // TODO: interface?
+            SocketAddress address;
+            if (endpoint.getHost().equals("pipe")) {
+                // TODO: Need to interpret this relative to a fixed directory,
+                // and abstract between windows and *nix pipes
+                address = UnixDomainSocketAddress.of(endpoint.getPath());
+            } else {
+                address = new InetSocketAddress(endpoint.getHost(), endpoint.getPort());
             }
+            bootstrap.group(bossGroup, workerGroup)
+                    .localAddress(address)
+                    .bind();
             LOG.info("Started listening on {}", endpoint);
         }
     }

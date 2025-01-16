@@ -41,6 +41,15 @@ public class RoundTripTests {
     }
 
     public static boolean serverListening(URI uri) {
+        if (uri.getHost().equals("pipe")) {
+            // TODO: Figure out the equivalent
+            try {
+                TimeUnit.SECONDS.sleep(3);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            return true;
+        }
         try (Socket ignored = new Socket(uri.getHost(), uri.getPort())) {
             return true;
         } catch (Exception e) {

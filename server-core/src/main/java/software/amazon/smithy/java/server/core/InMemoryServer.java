@@ -39,6 +39,7 @@ public class InMemoryServer implements Server {
 
     @Override
     public void start() {
+        // TODO:
         if (SERVER != null) {
             throw new IllegalStateException("Server is already started");
         }

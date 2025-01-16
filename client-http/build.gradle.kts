@@ -11,6 +11,8 @@ dependencies {
     api(project(":client-core"))
     api(project(":http-api"))
     implementation(project(":logging"))
+    // TODO: Temporary, may want a separate client-netty-http module
+    implementation(libs.netty.all)
 
     testImplementation(project(":json-codec"))
     testImplementation(project(":aws:client-awsjson"))

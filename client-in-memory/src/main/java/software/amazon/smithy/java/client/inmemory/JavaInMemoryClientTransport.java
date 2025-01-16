@@ -36,6 +36,7 @@ public class JavaInMemoryClientTransport implements ClientTransport<InMemoryRequ
     public CompletableFuture<InMemoryResponse> send(Context context, InMemoryRequest request) {
         // TODO: Works, but may not be the ideal minimal FFI signature,
         // especially the typed context map which could have arbitrary types in it.
+        // TODO: Should have a registry analogous to DNS to map URI prefixes to servers instead
         return InMemoryServer.SERVER.handle(context, request);
     }
 
