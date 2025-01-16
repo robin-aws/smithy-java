@@ -9,7 +9,6 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelOption;
-import io.netty.channel.ChannelPromise;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -19,13 +18,10 @@ import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpMethod;
-import io.netty.handler.codec.http.HttpScheme;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http2.HttpConversionUtil;
-import io.netty.util.AsciiString;
 import software.amazon.smithy.java.client.core.ClientTransport;
 import software.amazon.smithy.java.client.core.ClientTransportFactory;
-import software.amazon.smithy.java.client.http.HttpContext;
 import software.amazon.smithy.java.context.Context;
 import software.amazon.smithy.java.core.serde.document.Document;
 import software.amazon.smithy.java.http.api.HttpHeaders;
@@ -37,17 +33,15 @@ import software.amazon.smithy.java.logging.InternalLogger;
 
 import java.net.URI;
 import java.nio.ByteBuffer;
-import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Flow;
 import java.util.concurrent.TimeUnit;
 
+import static io.netty.buffer.Unpooled.wrappedBuffer;
 import static io.netty.handler.codec.http.HttpMethod.GET;
 import static io.netty.handler.codec.http.HttpMethod.POST;
-import static io.netty.buffer.Unpooled.wrappedBuffer;
 
 /**
  * A client transport that uses Netty to send {@link HttpRequest} and return
@@ -82,7 +76,9 @@ public class NettyHttpClientTransport implements ClientTransport<HttpRequest, Ht
                 wrappedBuffer(request.body().waitForByteBuffer()));
         nettyRequest.headers().add(HttpHeaderNames.HOST, request.uri().getHost());
         nettyRequest.headers().add(HttpConversionUtil.ExtensionHeaderNames.SCHEME.text().toString(), List.of(request.uri().getScheme()));
-        nettyRequest.headers().add(HttpHeaderNames.CONTENT_TYPE, request.body().contentType());
+        if (request.body().contentType() != null) {
+            nettyRequest.headers().add(HttpHeaderNames.CONTENT_TYPE, request.body().contentType());
+        }
         nettyRequest.headers().add(HttpHeaderNames.ACCEPT_ENCODING, HttpHeaderValues.GZIP);
         nettyRequest.headers().add(HttpHeaderNames.ACCEPT_ENCODING, HttpHeaderValues.DEFLATE);
 
@@ -101,7 +97,7 @@ public class NettyHttpClientTransport implements ClientTransport<HttpRequest, Ht
         // TODO: cache connections per endpoint (look at how Java client works)
 
         EventLoopGroup workerGroup = new NioEventLoopGroup();
-        Http2ClientInitializer initializer = new Http2ClientInitializer(null, Integer.MAX_VALUE);
+        HttpClientInitializer initializer = new HttpClientInitializer(null, Integer.MAX_VALUE);
 
         // Configure the client.
         Bootstrap b = new Bootstrap();
@@ -114,14 +110,6 @@ public class NettyHttpClientTransport implements ClientTransport<HttpRequest, Ht
         // Start the client.
         Channel channel = b.connect().syncUninterruptibly().channel();
 
-        // Wait for the HTTP/2 upgrade to occur.
-        Http2SettingsHandler http2SettingsHandler = initializer.settingsHandler();
-        try {
-            http2SettingsHandler.awaitSettings(5, TimeUnit.SECONDS);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
         HttpResponseHandler responseHandler = initializer.responseHandler();
         int streamId = 3;
         System.err.println("Sending request(s)...");
@@ -131,7 +119,7 @@ public class NettyHttpClientTransport implements ClientTransport<HttpRequest, Ht
         channel.flush();
         responseHandler.awaitResponses(5, TimeUnit.SECONDS);
 
-        System.out.println("Finished HTTP/2 request(s)");
+        System.out.println("Finished request(s)");
 
         try {
             return CompletableFuture.completedFuture(createSmithyResponse(responseFuture.get()));
