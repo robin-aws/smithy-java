@@ -41,7 +41,7 @@ public class RoundTripTests {
     }
 
     public static boolean serverListening(URI uri) {
-        if (uri.getHost().equals("pipe")) {
+        if (uri.getScheme().equals("uds")) {
             // TODO: Figure out the equivalent
             try {
                 TimeUnit.SECONDS.sleep(3);

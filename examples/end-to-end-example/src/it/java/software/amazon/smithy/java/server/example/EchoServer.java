@@ -33,7 +33,7 @@ public class EchoServer {
                             ch.pipeline().addLast(new EchoServerHandler());
                         }
                     });
-            SocketAddress address = new DomainSocketAddress("/Users/salkeldr/Documents/GitHub/smithy-java/examples/end-to-end-example/beer");
+            SocketAddress address = new DomainSocketAddress("beer");
             ChannelFuture future = bootstrap.bind(address).sync();
             future.channel().closeFuture().sync();
         } finally {

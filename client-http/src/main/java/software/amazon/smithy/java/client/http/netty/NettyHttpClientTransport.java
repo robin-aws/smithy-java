@@ -8,10 +8,10 @@ package software.amazon.smithy.java.client.http.netty;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.channel.kqueue.KQueueDomainSocketChannel;
+import io.netty.channel.kqueue.KQueueEventLoopGroup;
+import io.netty.channel.unix.DomainSocketAddress;
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
@@ -19,12 +19,8 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpVersion;
-import io.netty.handler.codec.http2.HttpConversionUtil;
-import software.amazon.awssdk.http.async.SdkAsyncHttpClient;
-import software.amazon.awssdk.http.nio.netty.NettyNioAsyncHttpClient;
 import software.amazon.smithy.java.client.core.ClientTransport;
 import software.amazon.smithy.java.client.core.ClientTransportFactory;
-import software.amazon.smithy.java.client.http.HttpContext;
 import software.amazon.smithy.java.context.Context;
 import software.amazon.smithy.java.core.serde.document.Document;
 import software.amazon.smithy.java.http.api.HttpHeaders;
@@ -34,20 +30,15 @@ import software.amazon.smithy.java.http.api.ModifiableHttpHeaders;
 import software.amazon.smithy.java.io.datastream.DataStream;
 import software.amazon.smithy.java.logging.InternalLogger;
 
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.net.URI;
 import java.nio.ByteBuffer;
-import java.time.Duration;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import static io.netty.buffer.Unpooled.copiedBuffer;
-import static io.netty.buffer.Unpooled.wrappedBuffer;
 import static io.netty.handler.codec.http.HttpMethod.GET;
-import static io.netty.handler.codec.http.HttpMethod.POST;
 import static io.netty.handler.codec.http.HttpMethod.PUT;
 
 /**
@@ -58,15 +49,7 @@ public class NettyHttpClientTransport implements ClientTransport<HttpRequest, Ht
 
     private static final InternalLogger LOGGER = InternalLogger.getLogger(NettyHttpClientTransport.class);
 
-    private final SdkAsyncHttpClient nettyClient;
-
     public NettyHttpClientTransport() {
-        this(NettyNioAsyncHttpClient.builder().build());
-    }
-
-
-    public NettyHttpClientTransport(SdkAsyncHttpClient nettyClient) {
-        this.nettyClient = nettyClient;
     }
 
     @Override
@@ -91,7 +74,7 @@ public class NettyHttpClientTransport implements ClientTransport<HttpRequest, Ht
                 request.uri().toString(),
                 // TODO: streaming
                 copiedBuffer(request.body().waitForByteBuffer()));
-        nettyRequest.headers().add(HttpHeaderNames.HOST, request.uri().getHost());
+//        nettyRequest.headers().add(HttpHeaderNames.HOST, request.uri().getHost());
         nettyRequest.headers().add(HttpHeaderNames.CONTENT_LENGTH, nettyRequest.content().readableBytes());
         if (request.body().contentType() != null) {
             nettyRequest.headers().add(HttpHeaderNames.CONTENT_TYPE, request.body().contentType());
@@ -110,18 +93,25 @@ public class NettyHttpClientTransport implements ClientTransport<HttpRequest, Ht
     }
 
     private CompletableFuture<HttpResponse> sendRequest(FullHttpRequest request, URI endpoint) {
-        // TODO: use GenericFutureListener to chain async results instead
         // TODO: cache connections per endpoint (look at how Java client works)
 
-        EventLoopGroup workerGroup = new NioEventLoopGroup();
+        EventLoopGroup workerGroup = new KQueueEventLoopGroup();
         HttpClientInitializer initializer = new HttpClientInitializer(null);
 
         // Configure the client.
         Bootstrap b = new Bootstrap();
         b.group(workerGroup);
-        b.channel(NioSocketChannel.class);
-        b.option(ChannelOption.SO_KEEPALIVE, true);
-        b.remoteAddress(endpoint.getHost(), endpoint.getPort());
+        b.channel(KQueueDomainSocketChannel.class);
+
+        SocketAddress address;
+        if (endpoint.getScheme().equals("uds")) {
+            // TODO: Need to interpret this relative to a fixed directory,
+            // and abstract between windows and *nix pipes
+            address = new DomainSocketAddress(endpoint.getHost());
+        } else {
+            address = new InetSocketAddress(endpoint.getHost(), endpoint.getPort());
+        }
+        b.remoteAddress(address);
         b.handler(initializer);
 
         // Start the client.

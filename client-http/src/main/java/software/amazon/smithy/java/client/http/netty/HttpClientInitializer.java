@@ -2,6 +2,7 @@ package software.amazon.smithy.java.client.http.netty;
 
 
 import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
@@ -30,7 +31,7 @@ import static io.netty.handler.logging.LogLevel.INFO;
 
 /**
  */
-public class HttpClientInitializer extends ChannelInitializer<SocketChannel> {
+public class HttpClientInitializer extends ChannelInitializer<Channel> {
     private static final Http2FrameLogger logger = new Http2FrameLogger(INFO, HttpClientInitializer.class);
 
     private final SslContext sslCtx;
@@ -41,7 +42,7 @@ public class HttpClientInitializer extends ChannelInitializer<SocketChannel> {
     }
 
     @Override
-    public void initChannel(SocketChannel ch) throws Exception {
+    public void initChannel(Channel ch) throws Exception {
         responseHandler = new HttpResponseHandler();
         if (sslCtx != null) {
             throw new UnsupportedOperationException();
@@ -57,7 +58,7 @@ public class HttpClientInitializer extends ChannelInitializer<SocketChannel> {
     /**
      * Configure the pipeline for cleartext.
      */
-    private void configureClearText(SocketChannel ch) {
+    private void configureClearText(Channel ch) {
         HttpClientCodec sourceCodec = new HttpClientCodec();
         ch.pipeline().addLast(sourceCodec,
                 new HttpObjectAggregator(1048576),
