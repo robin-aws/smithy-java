@@ -11,6 +11,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.kqueue.KQueueDomainSocketChannel;
 import io.netty.channel.kqueue.KQueueEventLoopGroup;
+import io.netty.channel.kqueue.KQueueSocketChannel;
 import io.netty.channel.unix.DomainSocketAddress;
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
 import io.netty.handler.codec.http.FullHttpRequest;
@@ -28,6 +29,7 @@ import software.amazon.smithy.java.http.api.HttpRequest;
 import software.amazon.smithy.java.http.api.HttpResponse;
 import software.amazon.smithy.java.http.api.ModifiableHttpHeaders;
 import software.amazon.smithy.java.io.datastream.DataStream;
+import software.amazon.smithy.java.io.uri.UDSPathParser;
 import software.amazon.smithy.java.logging.InternalLogger;
 
 import java.net.InetSocketAddress;
@@ -101,17 +103,17 @@ public class NettyHttpClientTransport implements ClientTransport<HttpRequest, Ht
         // Configure the client.
         Bootstrap b = new Bootstrap();
         b.group(workerGroup);
-        b.channel(KQueueDomainSocketChannel.class);
 
         SocketAddress address;
-        if (endpoint.getScheme().equals("uds")) {
-            // TODO: Need to interpret this relative to a fixed directory,
-            // and abstract between windows and *nix pipes
-            address = new DomainSocketAddress(endpoint.getHost());
+        Class<? extends Channel> channelClass;
+        if (UDSPathParser.isUDS(endpoint)) {
+            var socketPath = UDSPathParser.parseAndResolveUDSPath(endpoint);
+            b.remoteAddress(new DomainSocketAddress(socketPath.toFile()));
+            b.channel(KQueueDomainSocketChannel.class);
         } else {
-            address = new InetSocketAddress(endpoint.getHost(), endpoint.getPort());
+            b.remoteAddress(new InetSocketAddress(endpoint.getHost(), endpoint.getPort()));
+            b.channel(KQueueSocketChannel.class);
         }
-        b.remoteAddress(address);
         b.handler(initializer);
 
         // Start the client.

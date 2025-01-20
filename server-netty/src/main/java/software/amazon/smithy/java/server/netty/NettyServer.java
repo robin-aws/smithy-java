@@ -31,6 +31,7 @@ import java.util.function.Function;
 
 import io.netty.channel.unix.DomainSocketAddress;
 import jdk.net.UnixDomainPrincipal;
+import software.amazon.smithy.java.io.uri.UDSPathParser;
 import software.amazon.smithy.java.logging.InternalLogger;
 import software.amazon.smithy.java.server.Server;
 import software.amazon.smithy.java.server.core.ErrorHandlingOrchestrator;
@@ -71,6 +72,7 @@ final class NettyServer implements Server {
         } else if (KQueue.isAvailable()) {
             eventLoopProvider = KQueueEventLoopGroup::new;
             // TODO: Make work for both http and uds and...
+            // Probably can't use a single stack across them.
             channelFactory = KQueueServerDomainSocketChannel::new;
         } else {
             eventLoopProvider = NioEventLoopGroup::new;
@@ -88,12 +90,10 @@ final class NettyServer implements Server {
     @Override
     public void start() {
         for (URI endpoint : endpoints) {
-            // TODO: Move somewhere central for both client and server code
             SocketAddress address;
-            if (endpoint.getScheme().equals("uds")) {
-                // TODO: Need to interpret this relative to a fixed directory,
-                // and abstract between windows and *nix pipes
-                address = new DomainSocketAddress(endpoint.getHost());
+            if (UDSPathParser.isUDS(endpoint)) {
+                var socketPath = UDSPathParser.parseAndResolveUDSPath(endpoint);
+                address = new DomainSocketAddress(socketPath.toFile());
             } else {
                 address = new InetSocketAddress(endpoint.getHost(), endpoint.getPort());
             }

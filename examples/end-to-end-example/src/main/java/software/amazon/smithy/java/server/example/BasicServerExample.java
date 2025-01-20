@@ -11,7 +11,7 @@ import software.amazon.smithy.java.example.service.CoffeeShop;
 import software.amazon.smithy.java.server.Server;
 
 public class BasicServerExample implements Runnable {
-    static final URI endpoint = URI.create("uds://beer/");
+    static final URI endpoint = URI.create("https://beer.aws.uds.localhost/");
 
     @Override
     public void run() {
