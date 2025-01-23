@@ -5,8 +5,6 @@
 
 package software.amazon.smithy.java.server.netty;
 
-import static software.amazon.smithy.java.server.netty.NettyUtils.toVoidCompletableFuture;
-
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFactory;
 import io.netty.channel.EventLoopGroup;
@@ -20,17 +18,7 @@ import io.netty.channel.kqueue.KQueueServerDomainSocketChannel;
 import io.netty.channel.kqueue.KQueueServerSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-import java.net.URI;
-import java.net.UnixDomainSocketAddress;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
-
 import io.netty.channel.unix.DomainSocketAddress;
-import jdk.net.UnixDomainPrincipal;
 import software.amazon.smithy.java.io.uri.UDSPathParser;
 import software.amazon.smithy.java.logging.InternalLogger;
 import software.amazon.smithy.java.server.Server;
@@ -39,6 +27,17 @@ import software.amazon.smithy.java.server.core.HandlerAssembler;
 import software.amazon.smithy.java.server.core.OrchestratorGroup;
 import software.amazon.smithy.java.server.core.ProtocolResolver;
 import software.amazon.smithy.java.server.core.SingleThreadOrchestrator;
+
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.net.URI;
+import java.nio.file.Files;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
+
+import static software.amazon.smithy.java.server.netty.NettyUtils.toVoidCompletableFuture;
 
 final class NettyServer implements Server {
 
@@ -71,9 +70,12 @@ final class NettyServer implements Server {
             channelFactory = EpollServerSocketChannel::new;
         } else if (KQueue.isAvailable()) {
             eventLoopProvider = KQueueEventLoopGroup::new;
-            // TODO: Make work for both http and uds and...
-            // Probably can't use a single stack across them.
-            channelFactory = KQueueServerDomainSocketChannel::new;
+            // TODO: Complete for all cases (this is enough for my macbook)
+            if (builder.endpoints.stream().anyMatch(UDSPathParser::isUDS)) {
+                channelFactory = KQueueServerDomainSocketChannel::new;
+            } else {
+                channelFactory = KQueueServerSocketChannel::new;
+            }
         } else {
             eventLoopProvider = NioEventLoopGroup::new;
             channelFactory = NioServerSocketChannel::new;
@@ -93,6 +95,14 @@ final class NettyServer implements Server {
             SocketAddress address;
             if (UDSPathParser.isUDS(endpoint)) {
                 var socketPath = UDSPathParser.parseAndResolveUDSPath(endpoint);
+
+                // Parent directories aren't automatically created
+                try {
+                    Files.createDirectories(socketPath.getParent());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+
                 address = new DomainSocketAddress(socketPath.toFile());
             } else {
                 address = new InetSocketAddress(endpoint.getHost(), endpoint.getPort());

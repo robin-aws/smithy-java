@@ -40,7 +40,7 @@ final class InMemoryJavaProtocol extends ServerProtocol {
         ServiceProtocolResolutionRequest request,
         List<Service> candidates
     ) {
-        if (!request.requestContext().get(InMemoryRequest.SMITHY_PROTOCOL_KEY).equals(getProtocolId())) {
+        if (!getProtocolId().equals(request.requestContext().get(InMemoryRequest.SMITHY_PROTOCOL_KEY))) {
             // This doesn't appear to be an in-memory Java request, let other protocols try.
             return null;
         }

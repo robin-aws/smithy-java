@@ -32,10 +32,12 @@ import software.amazon.smithy.java.io.datastream.DataStream;
 import software.amazon.smithy.java.io.uri.UDSPathParser;
 import software.amazon.smithy.java.logging.InternalLogger;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.URI;
 import java.nio.ByteBuffer;
+import java.nio.file.Files;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
@@ -119,10 +121,8 @@ public class NettyHttpClientTransport implements ClientTransport<HttpRequest, Ht
         // Start the client.
         Channel channel = b.connect().syncUninterruptibly().channel();
 
-        System.err.println("Sending request(s)...");
         channel.write(request);
         channel.flush();
-        System.out.println("Finished request(s)");
 
         return initializer.responseHandler().getResponseFuture().thenApply(this::createSmithyResponse);
     }

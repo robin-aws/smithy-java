@@ -214,9 +214,15 @@ final class ClientPipeline<RequestT, ResponseT> {
                 return req;
             })
             .thenCompose(
-                finalRequest -> transport
-                    .send(call.context, finalRequest)
-                    .thenCompose(response -> deserialize(call, finalRequest, response, call.interceptor))
+                finalRequest -> {
+                    System.err.println("Sending request:");
+                    System.err.println(finalRequest);
+                    System.err.println("Through transport:");
+                    System.err.println(transport);
+                    return transport
+                            .send(call.context, finalRequest)
+                            .thenCompose(response -> deserialize(call, finalRequest, response, call.interceptor));
+                }
             );
     }
 

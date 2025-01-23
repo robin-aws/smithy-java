@@ -5,7 +5,7 @@
       "service": "com.example#CoffeeShop",
       "namespace": "software.amazon.smithy.java.inmemory.example",
       "headerFile": "license.txt",
-      "protocol": "smithy.protocols#inmemoryv1Java"
+      "protocol": "smithy.protocols#inmemoryv1Cbor"
     },
     "java-server-codegen": {
       "service": "com.example#CoffeeShop",

@@ -1,6 +1,7 @@
 package software.amazon.smithy.java.io.uri;
 
 import java.net.URI;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
@@ -27,7 +28,7 @@ public class UDSPathParser {
     private static final Path UDS_ROOT_PATH = Path.of("/Users/salkeldr/.aws/localservices");
 
     public static boolean isUDS(URI uri) {
-        return uri.getHost().endsWith(UDS_LOCALHOST);
+        return uri.getHost() != null && uri.getHost().endsWith(UDS_LOCALHOST);
     }
 
     // TODO: This should be split into parsing and resolution phases.

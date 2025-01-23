@@ -9,13 +9,26 @@ import java.net.URI;
 import java.util.concurrent.ExecutionException;
 import software.amazon.smithy.java.example.service.CoffeeShop;
 import software.amazon.smithy.java.server.Server;
+import software.amazon.smithy.java.server.core.InMemoryServerBuilder;
 
 public class BasicServerExample implements Runnable {
-    static final URI endpoint = URI.create("https://beer.aws.uds.localhost/");
+    // Existing endpoint for this example
+//    static final URI endpoint = URI.create("http://localhost:8888");
+//    static final String serverProviderName = "smithy-java-netty-server";
+
+    // For in-memory transports
+//    static final URI endpoint = URI.create("inmemory:///");
+//    static final String serverProviderName = "smithy-java-in-memory-server";
+
+    // For HTTP transports over unix domain sockets
+    static final URI endpoint = URI.create(
+            "https://%s.beer.aws.uds.localhost/".formatted(ProcessHandle.current().pid()));
+    static final String serverProviderName = "smithy-java-netty-server";
+
 
     @Override
     public void run() {
-        Server server = Server.builder()
+        Server server = Server.builder(serverProviderName)
             .endpoints(endpoint)
             .addService(
                 CoffeeShop.builder()

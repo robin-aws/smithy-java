@@ -4,14 +4,19 @@ plugins {
 }
 
 dependencies {
+    // Model dependencies
+    api(project(":in-memory-api"))
+
     // Server dependencies
     api(project(":server"))
     api(project(":server-core"))
-    implementation(project(":server-netty"))
+    api(project(":server-in-memory-cbor"))
     api(project(":server-aws-rest-json1"))
+    implementation(project(":server-netty"))
 
     // Client dependencies
     api(project(":aws:client-restjson"))
+    api(project(":client-in-memory-cbor"))
 
     // Common dependencies
     api(project(":core"))

@@ -27,6 +27,7 @@ import software.amazon.smithy.java.example.model.GetOrderInput;
 import software.amazon.smithy.java.example.model.OrderNotFound;
 import software.amazon.smithy.java.example.model.OrderStatus;
 import software.amazon.smithy.java.io.uri.UDSPathParser;
+import software.amazon.smithy.java.server.core.InMemoryServer;
 
 public class RoundTripTests {
     private static final ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -42,7 +43,9 @@ public class RoundTripTests {
     }
 
     public static boolean serverListening(URI uri) {
-        if (UDSPathParser.isUDS(uri)) {
+        if (uri.getScheme().equals("inmemory")) {
+            return InMemoryServer.SERVER != null;
+        } else if (UDSPathParser.isUDS(uri)) {
             // TODO: Figure out the equivalent. Spinning up Netty is non-trivial.
             try {
                 TimeUnit.SECONDS.sleep(3);
