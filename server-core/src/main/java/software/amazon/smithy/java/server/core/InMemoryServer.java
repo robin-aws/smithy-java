@@ -39,7 +39,6 @@ public class InMemoryServer implements Server {
 
     @Override
     public void start() {
-        // TODO:
         if (SERVER != null) {
             throw new IllegalStateException("Server is already started");
         }
@@ -51,7 +50,6 @@ public class InMemoryServer implements Server {
         if (SERVER == null) {
             throw new IllegalStateException("Server is not started");
         }
-        SERVER.shutdown();
         SERVER = null;
         return CompletableFuture.completedFuture(null);
     }

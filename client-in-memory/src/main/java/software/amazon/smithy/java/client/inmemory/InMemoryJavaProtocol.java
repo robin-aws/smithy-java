@@ -52,7 +52,9 @@ public class InMemoryJavaProtocol extends InMemoryClientProtocol<InMemoryRequest
 
         context.put(InMemoryRequest.SMITHY_PROTOCOL_KEY, InMemoryJavaTrait.ID);
 
-        // TODO: This needs to be the server input shape instead
+        // TODO: This needs to be the server input shape instead.
+        // This works for now because the example uses the same classes
+        // on the client and server side.
         var inputBuilder = operation.inputBuilder();
         inputBuilder.deserialize(new SerializableShapeDeserializer(input));
 

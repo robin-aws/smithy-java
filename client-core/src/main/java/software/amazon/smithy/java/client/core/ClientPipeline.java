@@ -215,7 +215,7 @@ final class ClientPipeline<RequestT, ResponseT> {
             })
             .thenCompose(
                 finalRequest -> {
-                    System.err.println("Sending request:");
+                    System.err.println("*** Sending request:");
                     System.err.println(finalRequest);
                     System.err.println("Through transport:");
                     System.err.println(transport);

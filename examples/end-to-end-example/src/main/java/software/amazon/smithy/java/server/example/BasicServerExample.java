@@ -13,17 +13,17 @@ import software.amazon.smithy.java.server.core.InMemoryServerBuilder;
 
 public class BasicServerExample implements Runnable {
     // Existing endpoint for this example
-//    static final URI endpoint = URI.create("http://localhost:8888");
-//    static final String serverProviderName = "smithy-java-netty-server";
+    static final URI endpoint = URI.create("http://localhost:8888");
+    static final String serverProviderName = "smithy-java-netty-server";
 
     // For in-memory transports
 //    static final URI endpoint = URI.create("inmemory:///");
 //    static final String serverProviderName = "smithy-java-in-memory-server";
 
     // For HTTP transports over unix domain sockets
-    static final URI endpoint = URI.create(
-            "https://%s.beer.aws.uds.localhost/".formatted(ProcessHandle.current().pid()));
-    static final String serverProviderName = "smithy-java-netty-server";
+//    static final URI endpoint = URI.create(
+//            "https://%s.beer.aws.uds.alt/".formatted(ProcessHandle.current().pid()));
+//    static final String serverProviderName = "smithy-java-netty-server";
 
 
     @Override
