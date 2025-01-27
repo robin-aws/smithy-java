@@ -17,6 +17,7 @@ record HttpRequestImpl(
     HttpVersion httpVersion,
     String method,
     URI uri,
+    URI channelUri,
     HttpHeaders headers,
     DataStream body
 ) implements HttpRequest {
@@ -27,6 +28,7 @@ record HttpRequestImpl(
         mod.setHttpVersion(httpVersion);
         mod.setMethod(method);
         mod.setUri(uri);
+        mod.setChannelUri(channelUri);
         mod.setHeaders(headers.toModifiable());
         mod.setBody(body);
         return mod;
@@ -36,6 +38,7 @@ record HttpRequestImpl(
 
         String method;
         URI uri;
+        URI channelUri;
         DataStream body;
         HttpHeaders headers = SimpleUnmodifiableHttpHeaders.EMPTY;
         HttpVersion httpVersion = HttpVersion.HTTP_1_1;
@@ -55,6 +58,12 @@ record HttpRequestImpl(
 
         public Builder uri(URI uri) {
             this.uri = uri;
+            return this;
+        }
+
+        @Override
+        public HttpRequest.Builder channelUri(URI uri) {
+            this.channelUri = uri;
             return this;
         }
 
@@ -104,7 +113,7 @@ record HttpRequestImpl(
         @Override
         public HttpRequest build() {
             beforeBuild();
-            return new HttpRequestImpl(httpVersion, method, uri, headers, body);
+            return new HttpRequestImpl(httpVersion, method, uri, channelUri, headers, body);
         }
 
         @Override

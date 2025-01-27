@@ -20,7 +20,6 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.unix.DomainSocketAddress;
 import software.amazon.smithy.java.core.endpoint.Endpoint;
-import software.amazon.smithy.java.io.uri.UDSPathParser;
 import software.amazon.smithy.java.logging.InternalLogger;
 import software.amazon.smithy.java.server.Server;
 import software.amazon.smithy.java.server.core.ErrorHandlingOrchestrator;
@@ -34,6 +33,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.URI;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
@@ -72,7 +72,7 @@ final class NettyServer implements Server {
         } else if (KQueue.isAvailable()) {
             eventLoopProvider = KQueueEventLoopGroup::new;
             // TODO: Complete for all cases (this is enough for my macbook)
-            if (builder.endpoints.stream().anyMatch(e -> UDSPathParser.isUDS(e.uri()))) {
+            if (builder.endpoints.stream().anyMatch(e -> e.property(Endpoint.CHANNEL).getScheme().equals("unix"))) {
                 channelFactory = KQueueServerDomainSocketChannel::new;
             } else {
                 channelFactory = KQueueServerSocketChannel::new;
@@ -94,8 +94,9 @@ final class NettyServer implements Server {
     public void start() {
         for (Endpoint endpoint : endpoints) {
             SocketAddress address;
-            if (UDSPathParser.isUDS(endpoint.uri())) {
-                var socketPath = UDSPathParser.parseAndResolveUDSPath(endpoint.uri());
+            URI channelUri = endpoint.property(Endpoint.CHANNEL);
+            if (channelUri.getScheme().equals("unix")) {
+                var socketPath = Path.of(channelUri.getPath());
 
                 // Parent directories aren't automatically created
                 try {

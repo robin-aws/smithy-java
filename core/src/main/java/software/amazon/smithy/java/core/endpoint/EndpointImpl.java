@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import software.amazon.smithy.java.context.Context;
+import software.amazon.smithy.java.io.uri.URIBuilder;
 
 final class EndpointImpl implements Endpoint {
 
@@ -24,6 +25,12 @@ final class EndpointImpl implements Endpoint {
     private EndpointImpl(Builder builder) {
         this.uri = Objects.requireNonNull(builder.uri);
         this.authSchemes = List.copyOf(builder.authSchemes);
+
+        // TODO: Might not be the right place to set the default
+        if (!builder.properties.containsKey(Endpoint.CHANNEL)) {
+            builder.putProperty(Endpoint.CHANNEL,
+                    URIBuilder.of(uri).scheme("dns").path("").build());
+        }
         this.properties = Map.copyOf(builder.properties);
     }
 

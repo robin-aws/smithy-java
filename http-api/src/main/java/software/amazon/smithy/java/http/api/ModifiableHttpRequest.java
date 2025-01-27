@@ -25,6 +25,13 @@ public interface ModifiableHttpRequest extends ModifiableHttpMessage, HttpReques
      */
     void setUri(URI uri);
 
+    /**
+     * Set the request channel URI.
+     *
+     * @param uri URI to set.
+     */
+    void setChannelUri(URI uri);
+
     @Override
     default ModifiableHttpRequest toModifiable() {
         return this;

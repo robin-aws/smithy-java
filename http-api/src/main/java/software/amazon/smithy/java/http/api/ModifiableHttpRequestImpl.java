@@ -12,6 +12,7 @@ import software.amazon.smithy.java.io.datastream.DataStream;
 final class ModifiableHttpRequestImpl implements ModifiableHttpRequest {
 
     private URI uri;
+    private URI channelUri;
     private String method;
     private HttpVersion httpVersion = HttpVersion.HTTP_1_1;
     private HttpHeaders headers = new SimpleModifiableHttpHeaders();
@@ -33,8 +34,18 @@ final class ModifiableHttpRequestImpl implements ModifiableHttpRequest {
     }
 
     @Override
+    public URI channelUri() {
+        return channelUri;
+    }
+
+    @Override
     public void setUri(URI uri) {
         this.uri = Objects.requireNonNull(uri);
+    }
+
+    @Override
+    public void setChannelUri(URI uri) {
+        this.channelUri = Objects.requireNonNull(channelUri);
     }
 
     @Override

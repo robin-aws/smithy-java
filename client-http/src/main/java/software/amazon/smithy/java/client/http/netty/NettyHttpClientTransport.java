@@ -23,21 +23,20 @@ import io.netty.handler.codec.http.HttpVersion;
 import software.amazon.smithy.java.client.core.ClientTransport;
 import software.amazon.smithy.java.client.core.ClientTransportFactory;
 import software.amazon.smithy.java.context.Context;
+import software.amazon.smithy.java.core.endpoint.Endpoint;
 import software.amazon.smithy.java.core.serde.document.Document;
 import software.amazon.smithy.java.http.api.HttpHeaders;
 import software.amazon.smithy.java.http.api.HttpRequest;
 import software.amazon.smithy.java.http.api.HttpResponse;
 import software.amazon.smithy.java.http.api.ModifiableHttpHeaders;
 import software.amazon.smithy.java.io.datastream.DataStream;
-import software.amazon.smithy.java.io.uri.UDSPathParser;
 import software.amazon.smithy.java.logging.InternalLogger;
 
-import java.io.IOException;
+import java.io.File;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.URI;
 import java.nio.ByteBuffer;
-import java.nio.file.Files;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
@@ -68,7 +67,7 @@ public class NettyHttpClientTransport implements ClientTransport<HttpRequest, Ht
 
     @Override
     public CompletableFuture<HttpResponse> send(Context context, HttpRequest request) {
-        return sendRequest(createNettyRequest(context, request), request.uri());
+        return sendRequest(createNettyRequest(context, request), request.uri(), request.channelUri());
     }
 
     private FullHttpRequest createNettyRequest(Context context, HttpRequest request) {
@@ -96,7 +95,7 @@ public class NettyHttpClientTransport implements ClientTransport<HttpRequest, Ht
         return nettyRequest;
     }
 
-    private CompletableFuture<HttpResponse> sendRequest(FullHttpRequest request, URI endpoint) {
+    private CompletableFuture<HttpResponse> sendRequest(FullHttpRequest request, URI endpoint, URI channelUri) {
         // TODO: cache connections per endpoint (look at how Java client works)
 
         EventLoopGroup workerGroup = new KQueueEventLoopGroup();
@@ -106,11 +105,9 @@ public class NettyHttpClientTransport implements ClientTransport<HttpRequest, Ht
         Bootstrap b = new Bootstrap();
         b.group(workerGroup);
 
-        SocketAddress address;
-        Class<? extends Channel> channelClass;
-        if (UDSPathParser.isUDS(endpoint)) {
-            var socketPath = UDSPathParser.parseAndResolveUDSPath(endpoint);
-            b.remoteAddress(new DomainSocketAddress(socketPath.toFile()));
+        if (channelUri.getScheme().equals("unix")) {
+            var socketPath = channelUri.getPath();
+            b.remoteAddress(new DomainSocketAddress(new File(socketPath)));
             b.channel(KQueueDomainSocketChannel.class);
         } else {
             b.remoteAddress(new InetSocketAddress(endpoint.getHost(), endpoint.getPort()));

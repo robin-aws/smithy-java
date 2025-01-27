@@ -26,6 +26,13 @@ public interface HttpRequest extends HttpMessage {
     URI uri();
 
     /**
+     * Get the URI of the request.
+     *
+     * @return the request URI.
+     */
+    URI channelUri();
+
+    /**
      * Get a modifiable version of the request.
      *
      * @return the modifiable request.
@@ -41,6 +48,7 @@ public interface HttpRequest extends HttpMessage {
         return builder()
             .method(method())
             .uri(uri())
+            .channelUri(channelUri())
             .headers(headers())
             .body(body())
             .httpVersion(httpVersion());
@@ -89,5 +97,13 @@ public interface HttpRequest extends HttpMessage {
          * @return the builder.
          */
         Builder uri(URI uri);
+
+        /**
+         * Set the channel URI of the message.
+         *
+         * @param uri channel URI to set.
+         * @return the builder.
+         */
+        Builder channelUri(URI uri);
     }
 }
