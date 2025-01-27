@@ -72,7 +72,7 @@ final class NettyServer implements Server {
         } else if (KQueue.isAvailable()) {
             eventLoopProvider = KQueueEventLoopGroup::new;
             // TODO: Complete for all cases (this is enough for my macbook)
-            if (builder.endpoints.stream().anyMatch(e -> e.property(Endpoint.CHANNEL).getScheme().equals("unix"))) {
+            if (builder.endpoints.stream().anyMatch(e -> e.channelUri().getScheme().equals("unix"))) {
                 channelFactory = KQueueServerDomainSocketChannel::new;
             } else {
                 channelFactory = KQueueServerSocketChannel::new;
@@ -94,7 +94,7 @@ final class NettyServer implements Server {
     public void start() {
         for (Endpoint endpoint : endpoints) {
             SocketAddress address;
-            URI channelUri = endpoint.property(Endpoint.CHANNEL);
+            URI channelUri = endpoint.channelUri();
             if (channelUri.getScheme().equals("unix")) {
                 var socketPath = Path.of(channelUri.getPath());
 

@@ -67,6 +67,6 @@ public abstract class HttpClientProtocol implements ClientProtocol<HttpRequest, 
             requestBuilder.withAddedHeaders(endpoint.property(HttpContext.ENDPOINT_RESOLVER_HTTP_HEADERS));
         }
 
-        return requestBuilder.uri(builder.build()).channelUri(endpoint.property(Endpoint.CHANNEL)).build();
+        return requestBuilder.uri(builder.build()).channelUri(endpoint.channelUri()).build();
     }
 }

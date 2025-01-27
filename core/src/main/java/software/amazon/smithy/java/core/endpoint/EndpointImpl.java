@@ -19,6 +19,7 @@ import software.amazon.smithy.java.io.uri.URIBuilder;
 final class EndpointImpl implements Endpoint {
 
     private final URI uri;
+    private final URI channelUri;
     private final List<EndpointAuthScheme> authSchemes;
     private final Map<Context.Key<?>, Object> properties;
 
@@ -27,9 +28,17 @@ final class EndpointImpl implements Endpoint {
         this.authSchemes = List.copyOf(builder.authSchemes);
 
         // TODO: Might not be the right place to set the default
-        if (!builder.properties.containsKey(Endpoint.CHANNEL)) {
-            builder.putProperty(Endpoint.CHANNEL,
-                    URIBuilder.of(uri).scheme("dns").path("").build());
+        if (builder.channelUri == null) {
+            var path = uri.getPort() >= 0
+                    ? uri.getHost() + ":" + uri.getPort()
+                    : uri.getHost();
+            // TODO: Check edge cases (e.g. uri with a base path)
+            channelUri = new URIBuilder()
+                    .scheme("dns")
+                    .path(path)
+                    .build();
+        } else {
+            channelUri = builder.channelUri;
         }
         this.properties = Map.copyOf(builder.properties);
     }
@@ -37,6 +46,11 @@ final class EndpointImpl implements Endpoint {
     @Override
     public URI uri() {
         return uri;
+    }
+
+    @Override
+    public URI channelUri() {
+        return channelUri;
     }
 
     @Override
@@ -76,6 +90,7 @@ final class EndpointImpl implements Endpoint {
     static final class Builder implements Endpoint.Builder {
 
         private URI uri;
+        private URI channelUri;
         private final List<EndpointAuthScheme> authSchemes = new ArrayList<>();
         final Map<Context.Key<?>, Object> properties = new HashMap<>();
 
@@ -89,6 +104,21 @@ final class EndpointImpl implements Endpoint {
         public Builder uri(String uri) {
             try {
                 return uri(new URI(uri));
+            } catch (URISyntaxException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        @Override
+        public Builder channelUri(URI channelUri) {
+            this.channelUri = channelUri;
+            return this;
+        }
+
+        @Override
+        public Builder channelUri(String channelUri) {
+            try {
+                return channelUri(new URI(channelUri));
             } catch (URISyntaxException e) {
                 throw new RuntimeException(e);
             }

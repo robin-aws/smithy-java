@@ -20,18 +20,19 @@ public interface Endpoint {
         return builder().uri(uri).build();
     }
 
-    // TODO: Consider making this a direct field like authSchemes,
-    // since that's also only a property key in the rule set engine Endpoint shape.
-    static Context.Key<URI> CHANNEL = Context.key(
-            "gRPC-style URI indicating the channel to use"
-    );
-
     /**
      * The endpoint URI.
      *
      * @return URI of the endpoint.
      */
     URI uri();
+
+    /**
+     * The endpoint URI.
+     *
+     * @return URI of the endpoint.
+     */
+    URI channelUri();
 
     /**
      * Get the value of a property for the endpoint.
@@ -103,6 +104,28 @@ public interface Endpoint {
         default Builder uri(String uri) {
             try {
                 return uri(new URI(uri));
+            } catch (URISyntaxException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        /**
+         * Set the channel URI of the endpoint.
+         *
+         * @param channelUri channel URI to set.
+         * @return the builder.
+         */
+        Builder channelUri(URI channelUri);
+
+        /**
+         * Set the channel URI of the endpoint.
+         *
+         * @param channelUri channel URI to set.
+         * @return the builder.
+         */
+        default Builder channelUri(String channelUri) {
+            try {
+                return channelUri(new URI(channelUri));
             } catch (URISyntaxException e) {
                 throw new RuntimeException(e);
             }

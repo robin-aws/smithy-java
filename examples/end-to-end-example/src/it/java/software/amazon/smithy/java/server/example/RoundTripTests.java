@@ -44,7 +44,7 @@ public class RoundTripTests {
 
     public static boolean serverListening(Endpoint endpoint) {
         final var uri = endpoint.uri();
-        final var channelUri = endpoint.property(Endpoint.CHANNEL);
+        final var channelUri = endpoint.channelUri();
         if (uri.getScheme().equals("inmemory")) {
             return InMemoryServer.SERVER != null;
         } else if (channelUri.getScheme().equals("unix")) {
