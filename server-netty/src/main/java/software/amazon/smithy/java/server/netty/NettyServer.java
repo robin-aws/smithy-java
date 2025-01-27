@@ -19,6 +19,7 @@ import io.netty.channel.kqueue.KQueueServerSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.unix.DomainSocketAddress;
+import software.amazon.smithy.java.core.endpoint.Endpoint;
 import software.amazon.smithy.java.io.uri.UDSPathParser;
 import software.amazon.smithy.java.logging.InternalLogger;
 import software.amazon.smithy.java.server.Server;
@@ -46,7 +47,7 @@ final class NettyServer implements Server {
     private final ServerBootstrap bootstrap;
     private final EventLoopGroup bossGroup;
     private final EventLoopGroup workerGroup;
-    private final List<URI> endpoints;
+    private final List<Endpoint> endpoints;
     private final OrchestratorGroup orchestrator;
 
     NettyServer(NettyServerBuilder builder) {
@@ -71,7 +72,7 @@ final class NettyServer implements Server {
         } else if (KQueue.isAvailable()) {
             eventLoopProvider = KQueueEventLoopGroup::new;
             // TODO: Complete for all cases (this is enough for my macbook)
-            if (builder.endpoints.stream().anyMatch(UDSPathParser::isUDS)) {
+            if (builder.endpoints.stream().anyMatch(e -> UDSPathParser.isUDS(e.uri()))) {
                 channelFactory = KQueueServerDomainSocketChannel::new;
             } else {
                 channelFactory = KQueueServerSocketChannel::new;
@@ -91,10 +92,10 @@ final class NettyServer implements Server {
 
     @Override
     public void start() {
-        for (URI endpoint : endpoints) {
+        for (Endpoint endpoint : endpoints) {
             SocketAddress address;
-            if (UDSPathParser.isUDS(endpoint)) {
-                var socketPath = UDSPathParser.parseAndResolveUDSPath(endpoint);
+            if (UDSPathParser.isUDS(endpoint.uri())) {
+                var socketPath = UDSPathParser.parseAndResolveUDSPath(endpoint.uri());
 
                 // Parent directories aren't automatically created
                 try {
@@ -105,7 +106,7 @@ final class NettyServer implements Server {
 
                 address = new DomainSocketAddress(socketPath.toFile());
             } else {
-                address = new InetSocketAddress(endpoint.getHost(), endpoint.getPort());
+                address = new InetSocketAddress(endpoint.uri().getHost(), endpoint.uri().getPort());
             }
             bootstrap.group(bossGroup, workerGroup)
                     .localAddress(address)

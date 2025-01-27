@@ -9,6 +9,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
+
+import software.amazon.smithy.java.core.endpoint.Endpoint;
 import software.amazon.smithy.java.core.schema.TraitKey;
 
 /**

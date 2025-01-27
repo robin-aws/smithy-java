@@ -18,6 +18,8 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  */
+// TODO: Drop the "Java" prefix, I copied that from JavaHttpClientTransport
+// but there it refers to "the built-in Java HttpCLient"
 public class JavaInMemoryClientTransport implements ClientTransport<InMemoryRequest, InMemoryResponse> {
 
     private static final InternalLogger LOGGER = InternalLogger.getLogger(JavaInMemoryClientTransport.class);

@@ -68,7 +68,7 @@ public class HttpServerResponseProtocolTestProvider extends
                 var request = HttpRequest.builder()
                     .httpVersion(HttpVersion.HTTP_1_1)
                     .body(DataStream.ofBytes(new byte[0]))
-                    .uri(testData.endpoint())
+                    .uri(testData.endpoint().uri())
                     .headers(HttpHeaders.of(headers))
                     .method("POST")
                     .build();

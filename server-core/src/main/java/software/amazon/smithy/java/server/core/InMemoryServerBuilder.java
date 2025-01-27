@@ -1,5 +1,6 @@
 package software.amazon.smithy.java.server.core;
 
+import software.amazon.smithy.java.core.endpoint.Endpoint;
 import software.amazon.smithy.java.server.Route;
 import software.amazon.smithy.java.server.Server;
 import software.amazon.smithy.java.server.ServerBuilder;
@@ -10,11 +11,11 @@ import java.util.List;
 public class InMemoryServerBuilder extends ServerBuilder<InMemoryServerBuilder> {
 
     ServiceMatcher serviceMatcher;
-    List<URI> endpoints;
+    List<Endpoint> endpoints;
     int numberOfWorkers = Runtime.getRuntime().availableProcessors() * 2;
 
     @Override
-    public InMemoryServerBuilder endpoints(URI... endpoints) {
+    public InMemoryServerBuilder endpoints(Endpoint... endpoints) {
         this.endpoints = List.of(endpoints);
         return self();
     }

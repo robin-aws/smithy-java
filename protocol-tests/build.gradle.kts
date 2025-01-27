@@ -12,6 +12,7 @@ dependencies {
     implementation(project(":codegen:plugins"))
     implementation(project(":codegen:core"))
     implementation(libs.smithy.codegen)
+    implementation(project(":core"))
     implementation(project(":client-core"))
     implementation(libs.smithy.protocol.test.traits)
     implementation(project(":http-api"))

@@ -7,6 +7,8 @@ package software.amazon.smithy.java.server.netty;
 
 import java.net.URI;
 import java.util.List;
+
+import software.amazon.smithy.java.core.endpoint.Endpoint;
 import software.amazon.smithy.java.server.Route;
 import software.amazon.smithy.java.server.Server;
 import software.amazon.smithy.java.server.ServerBuilder;
@@ -15,11 +17,11 @@ import software.amazon.smithy.java.server.core.ServiceMatcher;
 final class NettyServerBuilder extends ServerBuilder<NettyServerBuilder> {
 
     ServiceMatcher serviceMatcher;
-    List<URI> endpoints;
+    List<Endpoint> endpoints;
     int numberOfWorkers = Runtime.getRuntime().availableProcessors() * 2;
 
     @Override
-    public NettyServerBuilder endpoints(URI... endpoints) {
+    public NettyServerBuilder endpoints(Endpoint... endpoints) {
         this.endpoints = List.of(endpoints);
         return self();
     }

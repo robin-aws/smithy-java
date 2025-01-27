@@ -12,6 +12,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import software.amazon.smithy.java.core.endpoint.Endpoint;
 import software.amazon.smithy.java.server.RequestContext;
 import software.amazon.smithy.java.server.Server;
 import software.amazon.smithy.java.server.example.model.*;
@@ -24,7 +26,7 @@ public class BasicServerExample {
     public static void main(String[] args) throws InterruptedException, ExecutionException {
 
         Server server = Server.builder()
-            .endpoints(URI.create("http://localhost:8080"))
+            .endpoints(Endpoint.create("http://localhost:8080"))
             .addService(
                 BeerService.builder()
                     .addAddBeerOperation(new AddBeerImpl())

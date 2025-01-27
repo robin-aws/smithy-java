@@ -58,7 +58,7 @@ public class HttpServerRequestProtocolTestProvider extends
                     invocationContexts.add(new IgnoredTestCase(testCase));
                     continue;
                 }
-                var createUri = createUri(testData.endpoint(), testCase.getUri(), testCase.getQueryParams());
+                var createUri = createUri(testData.endpoint().uri(), testCase.getUri(), testCase.getQueryParams());
                 var headers = createHeaders(testCase.getHeaders());
                 Function<String, byte[]> mapper;
                 if (testCase.getBodyMediaType().map(ProtocolTestProvider::isBinaryMediaType).orElse(false)) {

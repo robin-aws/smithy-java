@@ -5,6 +5,8 @@
 
 package software.amazon.smithy.java.client.core.endpoint;
 
+import software.amazon.smithy.java.core.endpoint.Endpoint;
+
 import java.net.URI;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;

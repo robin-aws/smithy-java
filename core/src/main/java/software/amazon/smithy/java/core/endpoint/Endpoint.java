@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package software.amazon.smithy.java.client.core.endpoint;
+package software.amazon.smithy.java.core.endpoint;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -15,6 +15,11 @@ import software.amazon.smithy.java.context.Context;
  * A resolved endpoint.
  */
 public interface Endpoint {
+
+    static Endpoint create(String uri) {
+        return builder().uri(uri).build();
+    }
+
     /**
      * The endpoint URI.
      *

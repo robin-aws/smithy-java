@@ -10,23 +10,25 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.time.Duration;
 import java.util.concurrent.ConcurrentHashMap;
+
+import software.amazon.smithy.java.core.endpoint.Endpoint;
 import software.amazon.smithy.java.http.api.HttpHeaders;
 import software.amazon.smithy.java.http.api.HttpRequest;
 import software.amazon.smithy.java.http.api.HttpResponse;
 import software.amazon.smithy.java.io.datastream.DataStream;
 
 final class ServerTestClient {
-    private static final ConcurrentHashMap<URI, ServerTestClient> CLIENTS = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<Endpoint, ServerTestClient> CLIENTS = new ConcurrentHashMap<>();
 
-    private final URI endpoint;
+    private final Endpoint endpoint;
     private final HttpClient httpClient;
 
-    private ServerTestClient(URI endpoint) {
+    private ServerTestClient(Endpoint endpoint) {
         this.endpoint = endpoint;
         this.httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(4)).build();
     }
 
-    public static ServerTestClient get(URI endpoint) {
+    public static ServerTestClient get(Endpoint endpoint) {
         return CLIENTS.computeIfAbsent(endpoint, ServerTestClient::new);
     }
 

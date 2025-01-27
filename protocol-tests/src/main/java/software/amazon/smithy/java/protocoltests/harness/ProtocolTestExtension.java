@@ -25,6 +25,7 @@ import software.amazon.smithy.java.codegen.CodegenUtils;
 import software.amazon.smithy.java.codegen.JavaSymbolProvider;
 import software.amazon.smithy.java.codegen.server.ServerSymbolProperties;
 import software.amazon.smithy.java.codegen.server.ServiceJavaSymbolProvider;
+import software.amazon.smithy.java.core.endpoint.Endpoint;
 import software.amazon.smithy.java.core.schema.ApiOperation;
 import software.amazon.smithy.java.core.schema.ModeledApiException;
 import software.amazon.smithy.java.core.schema.SerializableStruct;
@@ -154,7 +155,7 @@ public final class ProtocolTestExtension implements BeforeAllCallback, AfterAllC
 
                 Service createdService = (Service) builderStageClass.getMethod("build").invoke(builder);
 
-                var endpoint = URI.create("http://localhost:" + getFreePort());
+                var endpoint = Endpoint.create("http://localhost:" + getFreePort());
 
                 context.getStore(namespace.append(context.getUniqueId()))
                     .put(
@@ -216,7 +217,7 @@ public final class ProtocolTestExtension implements BeforeAllCallback, AfterAllC
 
     record SharedServerTestData(
         List<ServerTestOperation> testOperations,
-        Map<ShapeId, ClientProtocol<?, ?>> protocols, URI endpoint
+        Map<ShapeId, ClientProtocol<?, ?>> protocols, Endpoint endpoint
     ) {
 
     }

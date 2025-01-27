@@ -19,6 +19,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import software.amazon.smithy.java.client.core.endpoint.EndpointResolver;
+import software.amazon.smithy.java.core.endpoint.Endpoint;
 import software.amazon.smithy.java.example.client.CoffeeShopClient;
 import software.amazon.smithy.java.example.model.CoffeeType;
 import software.amazon.smithy.java.example.model.CreateOrderInput;
@@ -42,7 +43,8 @@ public class RoundTripTests {
         }
     }
 
-    public static boolean serverListening(URI uri) {
+    public static boolean serverListening(Endpoint endpoint) {
+        final var uri = endpoint.uri();
         if (uri.getScheme().equals("inmemory")) {
             return InMemoryServer.SERVER != null;
         } else if (UDSPathParser.isUDS(uri)) {

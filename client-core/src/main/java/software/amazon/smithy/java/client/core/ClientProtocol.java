@@ -7,7 +7,7 @@ package software.amazon.smithy.java.client.core;
 
 import java.net.URI;
 import java.util.concurrent.CompletableFuture;
-import software.amazon.smithy.java.client.core.endpoint.Endpoint;
+import software.amazon.smithy.java.core.endpoint.Endpoint;
 import software.amazon.smithy.java.context.Context;
 import software.amazon.smithy.java.core.schema.ApiException;
 import software.amazon.smithy.java.core.schema.ApiOperation;

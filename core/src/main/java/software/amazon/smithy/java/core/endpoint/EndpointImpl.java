@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package software.amazon.smithy.java.client.core.endpoint;
+package software.amazon.smithy.java.core.endpoint;
 
 import java.net.URI;
 import java.net.URISyntaxException;

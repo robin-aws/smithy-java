@@ -5,6 +5,8 @@
 
 package software.amazon.smithy.java.server;
 
+import software.amazon.smithy.java.core.endpoint.Endpoint;
+
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,7 +16,7 @@ import java.util.Objects;
 
 public abstract class ServerBuilder<T extends ServerBuilder<T>> {
 
-    private static final URI DEFAULT_ENDPOINT = URI.create("http://localhost:8080");
+    private static final Endpoint DEFAULT_ENDPOINT = Endpoint.builder().uri("http://localhost:8080").build();
     private final Map<String, List<Service>> servicePathMappings = new HashMap<>();
     private final List<Route> routes = new ArrayList<>();
 
@@ -37,9 +39,9 @@ public abstract class ServerBuilder<T extends ServerBuilder<T>> {
         if (ports == null || ports.length == 0) {
             return endpoints(DEFAULT_ENDPOINT);
         }
-        URI[] endpoints = new URI[ports.length];
+        Endpoint[] endpoints = new Endpoint[ports.length];
         for (int i = 0; i < ports.length; i++) {
-            endpoints[i] = URI.create("http://localhost:" + ports[i]);
+            endpoints[i] = Endpoint.builder().uri("http://localhost:" + ports[i]).build();
         }
         return endpoints(endpoints);
     }
@@ -68,7 +70,7 @@ public abstract class ServerBuilder<T extends ServerBuilder<T>> {
         return self();
     }
 
-    public abstract T endpoints(URI... endpoints);
+    public abstract T endpoints(Endpoint... endpoints);
 
     public abstract T numberOfWorkers(int numberOfWorkers);
 
