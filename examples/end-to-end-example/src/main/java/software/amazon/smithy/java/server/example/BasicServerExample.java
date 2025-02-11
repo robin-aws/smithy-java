@@ -20,7 +20,10 @@ public class BasicServerExample implements Runnable {
     static final String serverProviderName = "smithy-java-netty-server";
 
     // For in-memory transports
-//    static final Endpoint endpoint = Endpoint.create("inmemory:///");
+    // TODO: Endpoint probably needs to identify a software package as well.
+    // Could use a mvn: channel URI? https://www.iana.org/assignments/uri-schemes/prov/mvn
+//    static final Endpoint endpoint = Endpoint.create(
+//        "inmemory://java/software.amazon.smithy.java.server.core.InMemoryServer.SERVER");
 //    static final String serverProviderName = "smithy-java-in-memory-server";
 
     // For HTTP transports over unix domain sockets

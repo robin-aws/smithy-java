@@ -3,8 +3,8 @@ $version: "2"
 namespace com.example
 
 use aws.protocols#restJson1
-use smithy.protocols#inmemoryv1Java
 use smithy.protocols#inmemoryv1Cbor
+use smithy.protocols#inmemoryv1Java
 
 /// Allows users to retrieve a menu, create a coffee order, and
 /// and to view the status of their orders
