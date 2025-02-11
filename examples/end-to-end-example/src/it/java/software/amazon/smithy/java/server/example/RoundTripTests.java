@@ -32,6 +32,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class RoundTripTests {
     private static final ExecutorService executor = Executors.newSingleThreadExecutor();
 
+    // TODO: In an actual in-memory local service (a.k.a. library)
+    // the library would start the server for you on initialization somehow.
+    // The library user would just make requests through the client.
     @BeforeAll
     public static void setup() throws InterruptedException {
         var server = new BasicServerExample();

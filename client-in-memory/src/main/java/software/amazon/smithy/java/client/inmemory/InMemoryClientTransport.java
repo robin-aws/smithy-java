@@ -18,11 +18,9 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  */
-// TODO: Drop the "Java" prefix, I copied that from JavaHttpClientTransport
-// but there it refers to "the built-in Java HttpCLient"
-public class JavaInMemoryClientTransport implements ClientTransport<InMemoryRequest, InMemoryResponse> {
+public class InMemoryClientTransport implements ClientTransport<InMemoryRequest, InMemoryResponse> {
 
-    private static final InternalLogger LOGGER = InternalLogger.getLogger(JavaInMemoryClientTransport.class);
+    private static final InternalLogger LOGGER = InternalLogger.getLogger(InMemoryClientTransport.class);
 
     @Override
     public Class<InMemoryRequest> requestClass() {
@@ -51,8 +49,8 @@ public class JavaInMemoryClientTransport implements ClientTransport<InMemoryRequ
 
         // TODO: Determine what configuration is actually needed.
         @Override
-        public JavaInMemoryClientTransport createTransport(Document node) {
-            return new JavaInMemoryClientTransport();
+        public InMemoryClientTransport createTransport(Document node) {
+            return new InMemoryClientTransport();
         }
 
         @Override

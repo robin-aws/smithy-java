@@ -3,15 +3,15 @@ $version: "2"
 namespace com.example
 
 use aws.protocols#restJson1
-use smithy.protocols#inmemoryv1Cbor
 use smithy.protocols#inmemoryv1Java
+use smithy.protocols#inmemoryv1Cbor
 
 /// Allows users to retrieve a menu, create a coffee order, and
 /// and to view the status of their orders
 @title("Coffee Shop Service")
 @restJson1
-@inmemoryv1Cbor
 @inmemoryv1Java
+@inmemoryv1Cbor
 service CoffeeShop {
     version: "2024-08-23"
     operations: [
