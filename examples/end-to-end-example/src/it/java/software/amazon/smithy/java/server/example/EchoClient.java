@@ -1,3 +1,8 @@
+/*
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 package software.amazon.smithy.java.server.example;
 
 import io.netty.bootstrap.Bootstrap;
@@ -11,15 +16,8 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.kqueue.KQueueDomainSocketChannel;
 import io.netty.channel.kqueue.KQueueEventLoopGroup;
-import io.netty.channel.kqueue.KQueueSocketChannel;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.SocketChannel;
-import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.channel.unix.DomainSocketAddress;
-
-import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.net.UnixDomainSocketAddress;
 import java.nio.charset.StandardCharsets;
 
 public class EchoClient {
@@ -27,14 +25,14 @@ public class EchoClient {
         EventLoopGroup group = new KQueueEventLoopGroup();
         try {
             Bootstrap bootstrap = new Bootstrap()
-                    .group(group)
-                    .channel(KQueueDomainSocketChannel.class)
-                    .handler(new ChannelInitializer<>() {
-                        @Override
-                        protected void initChannel(Channel ch) {
-                            ch.pipeline().addLast(new EchoClientHandler());
-                        }
-                    });
+                .group(group)
+                .channel(KQueueDomainSocketChannel.class)
+                .handler(new ChannelInitializer<>() {
+                    @Override
+                    protected void initChannel(Channel ch) {
+                        ch.pipeline().addLast(new EchoClientHandler());
+                    }
+                });
             SocketAddress address = new DomainSocketAddress("beer");
             ChannelFuture future = bootstrap.connect(address).sync();
             future.channel().closeFuture().sync();
@@ -42,18 +40,21 @@ public class EchoClient {
             group.shutdownGracefully();
         }
     }
+
     static class EchoClientHandler extends ChannelInboundHandlerAdapter {
         @Override
         public void channelActive(ChannelHandlerContext ctx) {
             ByteBuf message = Unpooled.copiedBuffer("Hello, Netty!", StandardCharsets.UTF_8);
             ctx.writeAndFlush(message);
         }
+
         @Override
         public void channelRead(ChannelHandlerContext ctx, Object msg) {
             ByteBuf byteBuf = (ByteBuf) msg;
             System.out.println("Received from server: " + byteBuf.toString(StandardCharsets.UTF_8));
             byteBuf.release();
         }
+
         @Override
         public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
             cause.printStackTrace();

@@ -3,6 +3,7 @@ $version: "2"
 namespace com.example
 
 use aws.protocols#restJson1
+use smithy.framework#ValidationException
 use smithy.protocols#inmemoryv1Cbor
 use smithy.protocols#inmemoryv1Java
 
@@ -19,6 +20,9 @@ service CoffeeShop {
     ]
     resources: [
         Order
+    ]
+    errors: [
+        ValidationException
     ]
 }
 

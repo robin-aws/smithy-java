@@ -6,6 +6,7 @@ plugins {
 dependencies {
     // Model dependencies
     api(project(":in-memory-api"))
+    implementation("software.amazon.smithy:smithy-validation-model:1.54.0")
 
     // Server dependencies
     api(project(":server"))
@@ -13,6 +14,9 @@ dependencies {
     api(project(":server-in-memory-cbor"))
     api(project(":server-aws-rest-json1"))
     implementation(project(":server-netty"))
+    implementation("software.amazon.smithy.rust.codegen.server.smithy:codegen-server:0.1.0")
+    implementation("software.amazon.smithy.rust.codegen:codegen-core:0.1.0")
+    implementation("software.amazon.smithy:smithy-codegen-core:1.54.0")
 
     // Client dependencies
     api(project(":aws:client-restjson"))

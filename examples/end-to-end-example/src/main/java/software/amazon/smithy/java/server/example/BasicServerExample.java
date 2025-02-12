@@ -5,14 +5,10 @@
 
 package software.amazon.smithy.java.server.example;
 
-import java.net.URI;
 import java.util.concurrent.ExecutionException;
-
-import software.amazon.smithy.java.client.http.HttpContext;
 import software.amazon.smithy.java.core.endpoint.Endpoint;
 import software.amazon.smithy.java.example.service.CoffeeShop;
 import software.amazon.smithy.java.server.Server;
-import software.amazon.smithy.java.server.core.InMemoryServerBuilder;
 
 public class BasicServerExample implements Runnable {
     // Existing endpoint for this example
@@ -33,7 +29,6 @@ public class BasicServerExample implements Runnable {
 //                    System.getProperty("user.home"), ProcessHandle.current().pid()))
 //            .build();
 //    static final String serverProviderName = "smithy-java-netty-server";
-
 
     @Override
     public void run() {
