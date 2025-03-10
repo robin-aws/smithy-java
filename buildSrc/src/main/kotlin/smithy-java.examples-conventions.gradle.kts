@@ -13,12 +13,16 @@ afterEvaluate {
     val clientPath = smithy.getPluginProjectionPath(smithy.sourceProjection.get(), "java-client-codegen")
     val serverPath = smithy.getPluginProjectionPath(smithy.sourceProjection.get(), "java-server-codegen")
     val typesPath = smithy.getPluginProjectionPath(smithy.sourceProjection.get(), "java-type-codedgen")
+    val callbacksClientPath = smithy.getPluginProjectionPath(smithy.sourceProjection.get(), "callbacks-client")
+    val callbacksServerPath = smithy.getPluginProjectionPath(smithy.sourceProjection.get(), "callbacks-server")
     sourceSets {
         main {
             java {
                 srcDir(clientPath)
                 srcDir(serverPath)
                 srcDir(typesPath)
+                srcDir(callbacksClientPath)
+                srcDir(callbacksServerPath)
             }
         }
     }

@@ -12,6 +12,18 @@
       "namespace": "software.amazon.smithy.java.example",
       "headerFile": "license.txt",
       "useExternalTypes": true
+    },
+    "java-client-codegen::callbacks-client": {
+      "service": "com.example#CoffeeShopCallbacks",
+      "namespace": "software.amazon.smithy.java.example.callbacks",
+      "headerFile": "license.txt",
+      "protocol": "aws.protocols#restJson1"
+    },
+    "java-server-codegen::callbacks-server": {
+      "service": "com.example#CoffeeShopCallbacks",
+      "namespace": "software.amazon.smithy.java.example.callbacks",
+      "headerFile": "license.txt",
+      "useExternalTypes": true
     }
   }
 }

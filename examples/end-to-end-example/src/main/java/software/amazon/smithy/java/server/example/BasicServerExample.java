@@ -39,7 +39,6 @@ public class BasicServerExample implements Runnable {
                     .addCreateOrderOperation(new CreateOrder())
                     .addGetMenuOperation(new GetMenu())
                     .addGetOrderOperation(new GetOrder())
-                    .addNotifyCompletedOperation(new NotifyCompleted())
                     .build()
             )
             .build();

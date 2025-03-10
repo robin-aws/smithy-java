@@ -13,8 +13,8 @@ import java.util.concurrent.TimeUnit;
 
 import software.amazon.smithy.java.client.core.endpoint.EndpointResolver;
 import software.amazon.smithy.java.core.endpoint.Endpoint;
-import software.amazon.smithy.java.example.client.CoffeeShopClient;
-import software.amazon.smithy.java.example.model.NotifyCompletedInput;
+import software.amazon.smithy.java.example.callbacks.client.CoffeeShopCallbacksClient;
+import software.amazon.smithy.java.example.callbacks.model.NotifyCompletedInput;
 import software.amazon.smithy.java.example.model.OrderStatus;
 
 /**
@@ -46,13 +46,12 @@ final class OrderTracker {
                     .uri(order.callbackEndpoint().url())
                     .channelUri(order.callbackEndpoint().channelUrl())
                     .build();
-            CoffeeShopClient client = CoffeeShopClient.builder()
+            CoffeeShopCallbacksClient client = CoffeeShopCallbacksClient.builder()
                     .endpointResolver(EndpointResolver.staticEndpoint(endpoint))
                     .build();
             client.notifyCompleted(NotifyCompletedInput.builder()
                     .callbackId(order.callbackId())
                     .orderId(order.id().toString())
-                    .coffeeType(order.type())
                     .build());
         }
     }

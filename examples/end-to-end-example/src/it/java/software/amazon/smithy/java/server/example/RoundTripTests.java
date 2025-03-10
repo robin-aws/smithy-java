@@ -5,9 +5,25 @@
 
 package software.amazon.smithy.java.server.example;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import software.amazon.smithy.java.client.core.endpoint.EndpointResolver;
+import software.amazon.smithy.java.core.endpoint.Endpoint;
+import software.amazon.smithy.java.example.callbacks.model.NotifyCompletedInput;
+import software.amazon.smithy.java.example.callbacks.model.NotifyCompletedOutput;
+import software.amazon.smithy.java.example.callbacks.service.CoffeeShopCallbacks;
+import software.amazon.smithy.java.example.client.CoffeeShopClient;
+import software.amazon.smithy.java.example.model.CallbackEndpoint;
+import software.amazon.smithy.java.example.model.CoffeeType;
+import software.amazon.smithy.java.example.model.CreateOrderInput;
+import software.amazon.smithy.java.example.model.GetMenuInput;
+import software.amazon.smithy.java.example.model.GetOrderInput;
+import software.amazon.smithy.java.example.model.OrderNotFound;
+import software.amazon.smithy.java.example.model.OrderStatus;
+import software.amazon.smithy.java.server.RequestContext;
+import software.amazon.smithy.java.server.Server;
+import software.amazon.smithy.java.server.core.InMemoryServer;
 
 import java.net.Socket;
 import java.util.HashMap;
@@ -17,28 +33,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import software.amazon.smithy.java.client.core.endpoint.EndpointResolver;
-import software.amazon.smithy.java.core.endpoint.Endpoint;
-import software.amazon.smithy.java.example.client.CoffeeShopClient;
-import software.amazon.smithy.java.example.model.CallbackEndpoint;
-import software.amazon.smithy.java.example.model.CoffeeType;
-import software.amazon.smithy.java.example.model.CreateOrderInput;
-import software.amazon.smithy.java.example.model.GetMenuInput;
-import software.amazon.smithy.java.example.model.GetOrderInput;
-import software.amazon.smithy.java.example.model.NotifyCompletedInput;
-import software.amazon.smithy.java.example.model.NotifyCompletedOutput;
-import software.amazon.smithy.java.example.model.OrderNotFound;
-import software.amazon.smithy.java.example.model.OrderStatus;
-import software.amazon.smithy.java.example.service.CoffeeShop;
-import software.amazon.smithy.java.server.RequestContext;
-import software.amazon.smithy.java.server.Server;
-import software.amazon.smithy.java.server.core.InMemoryServer;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class RoundTripTests {
     private static final ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -134,11 +133,7 @@ public class RoundTripTests {
         Server server = Server.builder("smithy-java-netty-server")
                 .endpoints(endpoint)
                 .addService(
-                        CoffeeShop.builder()
-                                // TODO: Ideally you wouldn't have to provide these at all.
-                                .addCreateOrderOperation(new CreateOrder())
-                                .addGetMenuOperation(new GetMenu())
-                                .addGetOrderOperation(new GetOrder())
+                        CoffeeShopCallbacks.builder()
                                 .addNotifyCompletedOperation(this::notifyCompleted)
                                 .build()
                 )
