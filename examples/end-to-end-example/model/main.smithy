@@ -20,6 +20,7 @@ service CoffeeShop {
     ]
     resources: [
         Order
+        CompletedCallback
     ]
     errors: [
         ValidationException

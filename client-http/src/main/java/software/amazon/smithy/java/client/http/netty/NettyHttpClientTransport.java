@@ -43,6 +43,7 @@ import java.util.concurrent.CompletableFuture;
 import static io.netty.buffer.Unpooled.copiedBuffer;
 import static io.netty.handler.codec.http.HttpMethod.GET;
 import static io.netty.handler.codec.http.HttpMethod.PUT;
+import static io.netty.handler.codec.http.HttpMethod.POST;
 
 /**
  * A client transport that uses Netty to send {@link HttpRequest} and return
@@ -148,6 +149,7 @@ public class NettyHttpClientTransport implements ClientTransport<HttpRequest, Ht
         return switch (method) {
             case "GET" -> GET;
             case "PUT" -> PUT;
+            case "POST" -> POST;
             // TODO: complete
             default -> throw new UnsupportedOperationException("Unsupported HTTP method: " + method);
         };

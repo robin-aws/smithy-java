@@ -6,6 +6,8 @@
 package software.amazon.smithy.java.server.example;
 
 import java.util.UUID;
+
+import software.amazon.smithy.java.example.model.CallbackEndpoint;
 import software.amazon.smithy.java.example.model.CoffeeType;
 import software.amazon.smithy.java.example.model.OrderStatus;
 
@@ -16,5 +18,5 @@ import software.amazon.smithy.java.example.model.OrderStatus;
  * @param type Type of drink for the order
  * @param status status of the order.
  */
-public record Order(UUID id, CoffeeType type, OrderStatus status) {
+public record Order(UUID id, CoffeeType type, OrderStatus status, CallbackEndpoint callbackEndpoint, String callbackId) {
 }

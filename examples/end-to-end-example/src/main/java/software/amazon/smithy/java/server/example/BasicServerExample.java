@@ -25,7 +25,7 @@ public class BasicServerExample implements Runnable {
     // For HTTP transports over unix domain sockets
 //    static final Endpoint endpoint = Endpoint.builder()
 //            .uri("http://localhost/")
-//            .channelUri("unix:%s/.aws/localservices/beer/%s".formatted(
+//            .channelUri("unix:%s/.aws/localservices/coffeeshop/%s".formatted(
 //                    System.getProperty("user.home"), ProcessHandle.current().pid()))
 //            .build();
 //    static final String serverProviderName = "smithy-java-netty-server";
@@ -39,6 +39,7 @@ public class BasicServerExample implements Runnable {
                     .addCreateOrderOperation(new CreateOrder())
                     .addGetMenuOperation(new GetMenu())
                     .addGetOrderOperation(new GetOrder())
+                    .addNotifyCompletedOperation(new NotifyCompleted())
                     .build()
             )
             .build();

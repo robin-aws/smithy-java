@@ -10,6 +10,11 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+
+import software.amazon.smithy.java.client.core.endpoint.EndpointResolver;
+import software.amazon.smithy.java.core.endpoint.Endpoint;
+import software.amazon.smithy.java.example.client.CoffeeShopClient;
+import software.amazon.smithy.java.example.model.NotifyCompletedInput;
 import software.amazon.smithy.java.example.model.OrderStatus;
 
 /**
@@ -24,7 +29,7 @@ final class OrderTracker {
 
         // Start a process to complete the order in the background.
         executor.schedule(
-            () -> ORDERS.put(order.id(), new Order(order.id(), order.type(), OrderStatus.COMPLETED)),
+            () -> completeOrder(new Order(order.id(), order.type(), OrderStatus.COMPLETED, order.callbackEndpoint(), order.callbackId())),
             5,
             TimeUnit.SECONDS
         );
@@ -32,5 +37,23 @@ final class OrderTracker {
 
     public static Order getOrderById(UUID id) {
         return ORDERS.get(id);
+    }
+
+    private static void completeOrder(Order order) {
+        ORDERS.put(order.id(), order);
+        if (order.callbackEndpoint() != null) {
+            var endpoint = Endpoint.builder()
+                    .uri(order.callbackEndpoint().url())
+                    .channelUri(order.callbackEndpoint().channelUrl())
+                    .build();
+            CoffeeShopClient client = CoffeeShopClient.builder()
+                    .endpointResolver(EndpointResolver.staticEndpoint(endpoint))
+                    .build();
+            client.notifyCompleted(NotifyCompletedInput.builder()
+                    .callbackId(order.callbackId())
+                    .orderId(order.id().toString())
+                    .coffeeType(order.type())
+                    .build());
+        }
     }
 }

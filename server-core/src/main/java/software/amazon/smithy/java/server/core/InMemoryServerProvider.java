@@ -16,6 +16,6 @@ public class InMemoryServerProvider implements ServerProvider {
 
     @Override
     public int priority() {
-        return 0;
+        return 1;
     }
 }

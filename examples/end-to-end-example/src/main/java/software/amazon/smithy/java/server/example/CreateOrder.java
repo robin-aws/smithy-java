@@ -20,7 +20,7 @@ final class CreateOrder implements CreateOrderOperation {
     public CreateOrderOutput createOrder(CreateOrderInput input, RequestContext context) {
         var id = UUID.randomUUID();
 
-        OrderTracker.putOrder(new Order(id, input.coffeeType(), OrderStatus.IN_PROGRESS));
+        OrderTracker.putOrder(new Order(id, input.coffeeType(), OrderStatus.IN_PROGRESS, input.callbackEndpoint(), input.callbackId()));
 
         return CreateOrderOutput.builder()
             .id(id.toString())

@@ -12,13 +12,6 @@
       "namespace": "software.amazon.smithy.java.example",
       "headerFile": "license.txt",
       "useExternalTypes": true
-    },
-    "rust-server-codegen": {
-      "service": "com.example#CoffeeShop",
-      "module": "coffee_shop",
-      "moduleVersion": "0.0.1",
-      "moduleDescription": "test",
-      "moduleAuthors": ["protocoltest@example.com"]
     }
   }
 }
