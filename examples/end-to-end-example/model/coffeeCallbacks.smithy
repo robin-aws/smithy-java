@@ -38,13 +38,3 @@ operation NotifyCompleted {
         starRating: Integer
     }
 }
-
-// This should be in some shared prelude model with a more generic name.
-// Calling it something other than "Endpoint" to avoid conflicting with the
-// Endpoint class in Smithy core.
-structure CallbackEndpoint {
-    @required
-    url: String
-
-    channelUrl: String
-}

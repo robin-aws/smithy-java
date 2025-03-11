@@ -25,7 +25,7 @@ operation CreateOrder {
         $coffeeType
 
         @notProperty
-        callbackEndpoint: CallbackEndpoint
+        callbackEndpoint: ResolvedEndpoint
 
         @notProperty
         callbackId: String

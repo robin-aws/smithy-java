@@ -28,9 +28,9 @@ public interface Endpoint {
     URI uri();
 
     /**
-     * The endpoint URI.
+     * The endpoint channel URI.
      *
-     * @return URI of the endpoint.
+     * @return Channel URI of the endpoint.
      */
     URI channelUri();
 

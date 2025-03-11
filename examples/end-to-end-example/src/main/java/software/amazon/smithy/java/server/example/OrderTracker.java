@@ -42,12 +42,8 @@ final class OrderTracker {
     private static void completeOrder(Order order) {
         ORDERS.put(order.id(), order);
         if (order.callbackEndpoint() != null) {
-            var endpoint = Endpoint.builder()
-                    .uri(order.callbackEndpoint().url())
-                    .channelUri(order.callbackEndpoint().channelUrl())
-                    .build();
             CoffeeShopCallbacksClient client = CoffeeShopCallbacksClient.builder()
-                    .endpointResolver(EndpointResolver.staticEndpoint(endpoint))
+                    .endpointResolver(ResolvedEndpointResolver.staticResolvedEndpoint(order.callbackEndpoint()))
                     .build();
             client.notifyCompleted(NotifyCompletedInput.builder()
                     .callbackId(order.callbackId())

@@ -14,13 +14,13 @@ import software.amazon.smithy.java.example.callbacks.model.NotifyCompletedInput;
 import software.amazon.smithy.java.example.callbacks.model.NotifyCompletedOutput;
 import software.amazon.smithy.java.example.callbacks.service.CoffeeShopCallbacks;
 import software.amazon.smithy.java.example.client.CoffeeShopClient;
-import software.amazon.smithy.java.example.model.CallbackEndpoint;
 import software.amazon.smithy.java.example.model.CoffeeType;
 import software.amazon.smithy.java.example.model.CreateOrderInput;
 import software.amazon.smithy.java.example.model.GetMenuInput;
 import software.amazon.smithy.java.example.model.GetOrderInput;
 import software.amazon.smithy.java.example.model.OrderNotFound;
 import software.amazon.smithy.java.example.model.OrderStatus;
+import software.amazon.smithy.java.example.model.ResolvedEndpoint;
 import software.amazon.smithy.java.server.RequestContext;
 import software.amazon.smithy.java.server.Server;
 import software.amazon.smithy.java.server.core.InMemoryServer;
@@ -29,6 +29,7 @@ import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -104,18 +105,6 @@ public class RoundTripTests {
         System.out.println("Completed Order :" + getResponse2);
     }
 
-    final Map<String, Function<NotifyCompletedInput, NotifyCompletedOutput>> callbacks = new HashMap<>();
-
-    NotifyCompletedOutput notifyCompleted(NotifyCompletedInput input, RequestContext context) {
-        return callbacks.get(input.callbackId()).apply(input);
-    }
-
-    String registerCallback(Function<NotifyCompletedInput, NotifyCompletedOutput> callback) {
-        var id = UUID.randomUUID().toString();
-        callbacks.put(id, callback);
-        return id;
-    }
-
     @Test
     void executesCorrectlyWithCallback() throws InterruptedException {
         CoffeeShopClient client = CoffeeShopClient.builder()
@@ -126,33 +115,16 @@ public class RoundTripTests {
         var hasEspresso = menu.items().stream().anyMatch(item -> item.typeMember().equals(CoffeeType.ESPRESSO));
         assertTrue(hasEspresso);
 
-        // TODO: How much "server management" can we generate/hide?
-        final Endpoint endpoint = Endpoint.builder()
-            .uri("http://localhost:8889/")
-            .build();
-        Server server = Server.builder("smithy-java-netty-server")
-                .endpoints(endpoint)
-                .addService(
-                        CoffeeShopCallbacks.builder()
-                                .addNotifyCompletedOperation(this::notifyCompleted)
-                                .build()
-                )
-                .build();
-        server.start();
-
-        // TODO: Ideally this would be the same Endpoint structure as above
         AtomicReference<String> completedOrder = new AtomicReference<>();
-        var callbackEndpoint = CallbackEndpoint.builder()
-                .url(endpoint.uri().toString())
-                .channelUrl(endpoint.channelUri().toString())
-                .build();
         var createRequest = CreateOrderInput.builder()
                 .coffeeType(CoffeeType.COLD_BREW)
-                .callbackEndpoint(callbackEndpoint)
-                .callbackId(registerCallback(input -> {
-                    System.out.print("FINALLY my coffee is ready!");
+                // For some local services, especially in-memory ones,
+                // the callback endpoint could be configured once
+                // in an Initialize operation.
+                .callbackEndpoint(CoffeeCallbacks.getEndpoint())
+                .callbackId(CoffeeCallbacks.registerCallback((input, context) -> {
                     completedOrder.set(input.orderId());
-                    return NotifyCompletedOutput.builder().starRating(4).build();
+                    return CompletableFuture.completedFuture(NotifyCompletedOutput.builder().starRating(4).build());
                 }))
                 .build();
 
