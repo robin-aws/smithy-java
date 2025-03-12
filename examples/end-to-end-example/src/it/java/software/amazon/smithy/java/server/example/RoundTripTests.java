@@ -122,8 +122,10 @@ public class RoundTripTests {
                 // the callback endpoint could be configured once
                 // in an Initialize operation.
                 .callbackEndpoint(CoffeeCallbacks.getEndpoint())
-                .callbackId(CoffeeCallbacks.registerCallback((input, context) -> {
+                .callbackId(CoffeeCallbacks.createCompletedCallback(UUID.randomUUID().toString(), (input, context) -> {
                     completedOrder.set(input.orderId());
+
+                    // Hmm, not bad...4/5 stars
                     return CompletableFuture.completedFuture(NotifyCompletedOutput.builder().starRating(4).build());
                 }))
                 .build();
@@ -137,6 +139,7 @@ public class RoundTripTests {
         assertEquals(getResponse1.status(), OrderStatus.IN_PROGRESS);
 
         // Give order some time to complete
+        // TODO: I'm lazy and didn't change the communication pattern :)
         System.out.println("Waiting for order to complete....");
         TimeUnit.SECONDS.sleep(10);
 
