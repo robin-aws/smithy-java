@@ -30,6 +30,9 @@ operation NotifyCompleted {
 
         @required
         orderId: Uuid
+
+        @required
+        coffeeType: CoffeeType
     }
 
     output := {

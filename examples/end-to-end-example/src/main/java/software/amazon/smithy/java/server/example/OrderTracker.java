@@ -8,12 +8,15 @@ package software.amazon.smithy.java.server.example;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import software.amazon.smithy.java.client.core.endpoint.EndpointResolver;
 import software.amazon.smithy.java.core.endpoint.Endpoint;
 import software.amazon.smithy.java.example.callbacks.client.CoffeeShopCallbacksClient;
+import software.amazon.smithy.java.example.callbacks.model.CoffeeType;
 import software.amazon.smithy.java.example.callbacks.model.NotifyCompletedInput;
 import software.amazon.smithy.java.example.model.OrderStatus;
 
@@ -28,7 +31,7 @@ final class OrderTracker {
         ORDERS.put(order.id(), order);
 
         // Start a process to complete the order in the background.
-        executor.schedule(
+        Future<?> future = executor.schedule(
             () -> completeOrder(new Order(order.id(), order.type(), OrderStatus.COMPLETED, order.callbackEndpoint(), order.callbackId())),
             5,
             TimeUnit.SECONDS
@@ -45,10 +48,15 @@ final class OrderTracker {
             CoffeeShopCallbacksClient client = CoffeeShopCallbacksClient.builder()
                     .endpointResolver(ResolvedEndpointResolver.staticResolvedEndpoint(order.callbackEndpoint()))
                     .build();
-            client.notifyCompleted(NotifyCompletedInput.builder()
-                    .callbackId(order.callbackId())
-                    .orderId(order.id().toString())
-                    .build());
+            try {
+                client.notifyCompleted(NotifyCompletedInput.builder()
+                        .callbackId(order.callbackId())
+                        .orderId(order.id().toString())
+                        .coffeeType(CoffeeType.from(order.type().value()))
+                        .build());
+            } catch (Exception e) {
+                System.err.println(e);
+            }
         }
     }
 }

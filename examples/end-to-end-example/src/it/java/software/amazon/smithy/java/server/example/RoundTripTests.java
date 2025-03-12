@@ -124,6 +124,7 @@ public class RoundTripTests {
                 .callbackEndpoint(CoffeeCallbacks.getEndpoint())
                 .callbackId(CoffeeCallbacks.createCompletedCallback(UUID.randomUUID().toString(), (input, context) -> {
                     completedOrder.set(input.orderId());
+                    System.out.println("Mmmmm, I love " + input.coffeeType());
 
                     // Hmm, not bad...4/5 stars
                     return CompletableFuture.completedFuture(NotifyCompletedOutput.builder().starRating(4).build());
