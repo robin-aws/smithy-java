@@ -57,6 +57,9 @@ operation NotifyCompleted {
     }
 }
 
+/// Deletes a callback.
+/// CoffeeShop will automatically delete a callback
+/// after successfully invoking it.
 @idempotent
 @http(method: "DELETE", uri: "/{callbackId}")
 operation DeleteCallback {
