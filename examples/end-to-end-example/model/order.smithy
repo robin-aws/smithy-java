@@ -24,9 +24,12 @@ operation CreateOrder {
         @required
         $coffeeType
 
+        /// Optional CoffeeShopCallbacks endpoint that holds the callback.
+        /// Defaults to the default in-memory local service endpoint.
         @notProperty
         callbackEndpoint: ResolvedEndpoint
 
+        /// Optional ID of the callback to invoke when the order completes.
         @notProperty
         callbackId: String
     }

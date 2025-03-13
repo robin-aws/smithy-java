@@ -17,6 +17,7 @@ import software.amazon.smithy.java.client.core.endpoint.EndpointResolver;
 import software.amazon.smithy.java.core.endpoint.Endpoint;
 import software.amazon.smithy.java.example.callbacks.client.CoffeeShopCallbacksClient;
 import software.amazon.smithy.java.example.callbacks.model.CoffeeType;
+import software.amazon.smithy.java.example.callbacks.model.DeleteCallbackInput;
 import software.amazon.smithy.java.example.callbacks.model.NotifyCompletedInput;
 import software.amazon.smithy.java.example.model.OrderStatus;
 
@@ -61,6 +62,12 @@ final class OrderTracker {
                         .callbackId(order.callbackId())
                         .orderId(order.id().toString())
                         .coffeeType(CoffeeType.from(order.type().value()))
+                        .build());
+
+                // These are intended to be single-use, so delete the callback as well.
+                // Other APIs would have different expected behavior.
+                client.deleteCallback(DeleteCallbackInput.builder()
+                        .callbackId(order.callbackId())
                         .build());
             } catch (Exception e) {
                 // Would be logged in a proper solution,
