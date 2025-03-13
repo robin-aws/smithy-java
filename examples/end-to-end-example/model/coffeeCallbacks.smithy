@@ -9,6 +9,8 @@ use aws.protocols#restJson1
 // TODO: rpcv2Cbor would be much better and avoid needing the @http traits,
 // but at the time I started this POC
 // smithy-java didn't have that implemented client-side yet.
+// A big advantage of this approach is that new protocols can be
+// swapped in later on without changing client or server interface though!
 @restJson1
 service CoffeeShopCallbacks {
     resources: [
