@@ -1,0 +1,18 @@
+[package]
+name = "coffee_shop"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+coffee_shop_sdk = { path = "../../../build/smithyprojections/end-to-end-example/source/rust-server-codegen"}
+tower = "0.5.2"
+
+[dependencies.tokio]
+version = "1.26.0"
+features = ["full"]
+
+[dependencies.hyper]
+version = "0.14"
+features = ["server"]
