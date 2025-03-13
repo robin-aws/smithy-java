@@ -28,6 +28,10 @@ public class CoffeeCallbacksInMemoryServer implements AutoCloseable {
 
     private final ConcurrentHashMap<String, CompletedCallback> completedCallbacksById = new ConcurrentHashMap<>();
 
+    public CoffeeCallbacksInMemoryServer() {
+        start();
+    }
+
     // TODO: Ideally you would start a single Server for all Java-based local services instead.
     // That would require some kind of SPI registration.
     public void start() {

@@ -108,7 +108,6 @@ public class RoundTripTests {
         assertTrue(hasEspresso);
 
         try (CoffeeCallbacksInMemoryServer callbackServer = new CoffeeCallbacksInMemoryServer()) {
-            callbackServer.start();
 
             AtomicReference<String> completedOrder = new AtomicReference<>();
             var createRequest = CreateOrderInput.builder()

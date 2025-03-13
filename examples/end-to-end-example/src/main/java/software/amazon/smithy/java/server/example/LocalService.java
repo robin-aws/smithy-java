@@ -27,9 +27,9 @@ public class LocalService {
      */
     public static Endpoint defaultDaemonEndpoint(String serviceName) {
         return Endpoint.builder()
-                .uri("http://localhost/")
-                .channelUri("unix:%s/.aws/localservices/%s/daemon".formatted(
-                        System.getProperty("user.home"), serviceName))
-                .build();
+            .uri("http://localhost/")
+            .channelUri("unix:%s/.aws/localservices/%s/daemon".formatted(
+                    System.getProperty("user.home"), serviceName))
+            .build();
     }
 }
