@@ -31,7 +31,7 @@ final class OrderTracker {
         ORDERS.put(order.id(), order);
 
         // Start a process to complete the order in the background.
-        Future<?> future = executor.schedule(
+        executor.schedule(
             () -> completeOrder(new Order(order.id(), order.type(), OrderStatus.COMPLETED, order.callbackEndpoint(), order.callbackId())),
             5,
             TimeUnit.SECONDS
@@ -44,9 +44,17 @@ final class OrderTracker {
 
     private static void completeOrder(Order order) {
         ORDERS.put(order.id(), order);
-        if (order.callbackEndpoint() != null) {
+
+        if (order.callbackId() != null) {
+            EndpointResolver endpointResolver;
+            if (order.callbackEndpoint() != null) {
+                endpointResolver = ResolvedEndpointResolver.staticResolvedEndpoint(order.callbackEndpoint());
+            } else {
+                endpointResolver = EndpointResolver.staticEndpoint(
+                        LocalService.defaultInMemoryEndpoint("coffeeshopcallbacks"));
+            }
             CoffeeShopCallbacksClient client = CoffeeShopCallbacksClient.builder()
-                    .endpointResolver(ResolvedEndpointResolver.staticResolvedEndpoint(order.callbackEndpoint()))
+                    .endpointResolver(endpointResolver)
                     .build();
             try {
                 client.notifyCompleted(NotifyCompletedInput.builder()
@@ -55,6 +63,9 @@ final class OrderTracker {
                         .coffeeType(CoffeeType.from(order.type().value()))
                         .build());
             } catch (Exception e) {
+                // Would be logged in a proper solution,
+                // likely even by the generated client/server code itself.
+                // This is just to help me debug things.
                 System.err.println(e);
             }
         }

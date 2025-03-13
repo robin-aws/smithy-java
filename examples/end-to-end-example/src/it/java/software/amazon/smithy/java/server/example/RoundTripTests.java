@@ -10,9 +10,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import software.amazon.smithy.java.client.core.endpoint.EndpointResolver;
 import software.amazon.smithy.java.core.endpoint.Endpoint;
-import software.amazon.smithy.java.example.callbacks.model.NotifyCompletedInput;
 import software.amazon.smithy.java.example.callbacks.model.NotifyCompletedOutput;
-import software.amazon.smithy.java.example.callbacks.service.CoffeeShopCallbacks;
 import software.amazon.smithy.java.example.client.CoffeeShopClient;
 import software.amazon.smithy.java.example.model.CoffeeType;
 import software.amazon.smithy.java.example.model.CreateOrderInput;
@@ -20,21 +18,15 @@ import software.amazon.smithy.java.example.model.GetMenuInput;
 import software.amazon.smithy.java.example.model.GetOrderInput;
 import software.amazon.smithy.java.example.model.OrderNotFound;
 import software.amazon.smithy.java.example.model.OrderStatus;
-import software.amazon.smithy.java.example.model.ResolvedEndpoint;
-import software.amazon.smithy.java.server.RequestContext;
-import software.amazon.smithy.java.server.Server;
 import software.amazon.smithy.java.server.core.InMemoryServer;
 
 import java.net.Socket;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -115,36 +107,41 @@ public class RoundTripTests {
         var hasEspresso = menu.items().stream().anyMatch(item -> item.typeMember().equals(CoffeeType.ESPRESSO));
         assertTrue(hasEspresso);
 
-        AtomicReference<String> completedOrder = new AtomicReference<>();
-        var createRequest = CreateOrderInput.builder()
-                .coffeeType(CoffeeType.COLD_BREW)
-                // For some local services, especially in-memory ones,
-                // the callback endpoint could be configured once
-                // in an Initialize operation.
-                .callbackEndpoint(CoffeeCallbacks.getEndpoint())
-                .callbackId(CoffeeCallbacks.createCompletedCallback(UUID.randomUUID().toString(), (input, context) -> {
-                    completedOrder.set(input.orderId());
-                    System.out.println("Mmmmm, I love " + input.coffeeType());
+        try (CoffeeCallbacksInMemoryServer callbackServer = new CoffeeCallbacksInMemoryServer()) {
+            callbackServer.start();
 
-                    // Hmm, not bad...4/5 stars
-                    return CompletableFuture.completedFuture(NotifyCompletedOutput.builder().starRating(4).build());
-                }))
-                .build();
+            AtomicReference<String> completedOrder = new AtomicReference<>();
+            var createRequest = CreateOrderInput.builder()
+                    .coffeeType(CoffeeType.COLD_BREW)
+                    // With resource code generation as well,
+                    // you could pass the resource interface directly to .callback(...)
+                    // and hide the identifiers completely.
+                    .callbackId(callbackServer.createCallback((input, context) -> {
+                        completedOrder.set(input.orderId());
+                        System.out.println("Mmmmm, I love " + input.coffeeType());
 
-        var createResponse = client.createOrder(createRequest);
-        assertEquals(CoffeeType.COLD_BREW, createResponse.coffeeType());
-        System.out.println("Created request with id = " + createResponse.id());
+                        // Hmm, not bad...4/5 stars
+                        return CompletableFuture.completedFuture(NotifyCompletedOutput.builder().starRating(4).build());
+                    }))
+                    .build();
 
-        var getRequest = GetOrderInput.builder().id(createResponse.id()).build();
-        var getResponse1 = client.getOrder(getRequest);
-        assertEquals(getResponse1.status(), OrderStatus.IN_PROGRESS);
+            var createResponse = client.createOrder(createRequest);
+            assertEquals(CoffeeType.COLD_BREW, createResponse.coffeeType());
+            System.out.println("Created request with id = " + createResponse.id());
 
-        // Give order some time to complete
-        // TODO: I'm lazy and didn't change the communication pattern :)
-        System.out.println("Waiting for order to complete....");
-        TimeUnit.SECONDS.sleep(10);
+            var getRequest = GetOrderInput.builder().id(createResponse.id()).build();
+            var getResponse1 = client.getOrder(getRequest);
+            assertEquals(getResponse1.status(), OrderStatus.IN_PROGRESS);
 
-        assertEquals(createResponse.id(), completedOrder.get());
+            // Give order some time to complete
+            // TODO: I'm lazy and didn't change the communication pattern :)
+            System.out.println("Waiting for order to complete....");
+            TimeUnit.SECONDS.sleep(10);
+
+            assertEquals(createResponse.id(), completedOrder.get());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test

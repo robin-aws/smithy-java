@@ -7,7 +7,6 @@ import software.amazon.smithy.java.core.serde.document.Document;
 import software.amazon.smithy.java.example.model.ResolvedEndpoint;
 
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 // TODO: Should be in a core smithy-java module instead
